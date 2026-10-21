@@ -58,7 +58,7 @@ export default function Navbar() {
   const Logo = ({ small }) => (
     <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label={SITE.name}>
       <span className="relative block overflow-hidden rounded-lg border border-primary-700 bg-primary-600 shadow-sm transition-all duration-300 group-hover:-rotate-1 group-hover:shadow-glow">
-        <img src="/logo.png" alt="Jayamangala Agro Foods" className={`w-auto max-w-[150px] object-contain transition-all duration-500 sm:max-w-none ${small ? "h-10" : scrolled ? "h-9 sm:h-11" : "h-10 sm:h-12"}`} />
+        <img src="/logo.png" alt="Jayamangala Agro Foods" className={`w-auto max-w-[150px] object-contain sm:max-w-none ${small ? "h-10" : "h-10 sm:h-12"}`} />
         <span className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -translate-x-full bg-white/30 group-hover:animate-[shine_1s_ease]" />
       </span>
     </Link>
@@ -68,7 +68,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`sticky top-0 z-40 transition-all duration-500 ${scrolled ? "border-b border-cream-sand/90 bg-cream/95 py-2 shadow-[0_8px_30px_rgba(60,28,16,.07)] backdrop-blur-md" : "bg-cream py-3.5 sm:py-4"}`}>
+      <header className={`sticky top-0 z-40 transition-colors duration-300 py-3.5 sm:py-4 ${scrolled ? "border-b border-cream-sand/90 bg-cream/95 shadow-[0_8px_30px_rgba(60,28,16,.07)] backdrop-blur-md" : "bg-cream"}`}>
         <div className="container-x flex items-center justify-between gap-2 sm:gap-4">
           {/* BRAND ZONE */}
           <div className="flex items-center gap-3">
