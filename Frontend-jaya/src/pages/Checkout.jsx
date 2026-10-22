@@ -172,13 +172,25 @@ export default function Checkout() {
         <aside className="card h-fit min-w-0 p-5 sm:p-6 lg:sticky lg:top-24">
           <h2 className="font-semibold">{t("cart.summary")}</h2>
           <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto pr-1">
-            {items.map(({ productId: p, quantity }) => (
-              <li key={p._id} className="flex items-center gap-3 text-sm">
-                <SafeImg src={p.productimage} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
-                <span className="line-clamp-2 min-w-0 flex-1">{p.name} <span className="text-ink-faint">× {quantity}</span></span>
-                <span className="shrink-0 font-semibold">{money(p.price * quantity)}</span>
-              </li>
-            ))}
+            {items.map((item) => {
+              const p = item.productId;
+              const quantity = item.quantity;
+              const size = item.size;
+              return (
+                <li key={item._id || `${p._id}-${size}`} className="flex items-center gap-3 text-sm">
+                  <SafeImg src={p.productimage} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  <div className="line-clamp-2 min-w-0 flex-1">
+                    <p className="font-medium text-secondary-800">{p.name} <span className="text-ink-faint">× {quantity}</span></p>
+                    {size && (
+                      <p className="text-xs text-ink-soft">
+                        Size: <span className="font-semibold text-secondary-700">{size} {p.unit || ""}</span>
+                      </p>
+                    )}
+                  </div>
+                  <span className="shrink-0 font-semibold">{money(p.price * quantity)}</span>
+                </li>
+              );
+            })}
           </ul>
           <div className="mt-5 space-y-2 border-t border-ink-line pt-4 text-sm">
             <div className="flex justify-between"><span className="text-ink-soft">{t("common.subtotal")}</span><span>{money(subtotal)}</span></div>

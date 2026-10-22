@@ -3,16 +3,42 @@ import Category from "../model/categoryModel.js"
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 import { uploadToCloudinary, deleteFromCloudinary, removeLocalFile } from "../utils/cloudinaryUpload.js"
 
-// form-data: name, price, oldprice, category, brand, description, stock, status, productimage (file)
+// helper to normalize availableSizes from array, comma string or JSON string
+const parseAvailableSizes = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) {
+        return val.map((s) => String(s).trim()).filter(Boolean);
+    }
+    if (typeof val === "string") {
+        try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) {
+                return parsed.map((s) => String(s).trim()).filter(Boolean);
+            }
+        } catch {
+            // fall back to comma-separated
+        }
+        return val.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+};
+
+// form-data: name, price, oldprice, category, brand, description, stock, unit, availableSizes, status, productimage (file)
 export const createproduct = async (req, res) => {
     try {
-        const { name, price } = req.body;
+        const { name, price, unit, availableSizes } = req.body;
         if (!name || price === undefined || price === "") {
             removeLocalFile(req.file);
             return res.status(400).json({ success: false, message: "Product name and price are required" });
         }
 
         const data = { ...req.body };
+        if (unit !== undefined) {
+            data.unit = typeof unit === "string" ? unit.trim() : unit;
+        }
+        if (availableSizes !== undefined) {
+            data.availableSizes = parseAvailableSizes(availableSizes);
+        }
         if (req.file) {
             const img = await uploadToCloudinary(req.file.path, "products");
             data.productimage = img.url;
@@ -96,6 +122,12 @@ export const updateproduct = async (req, res) => {
 
         const data = { ...req.body };
         delete data.imagePublicId;
+        if (data.unit !== undefined && typeof data.unit === "string") {
+            data.unit = data.unit.trim();
+        }
+        if (data.availableSizes !== undefined) {
+            data.availableSizes = parseAvailableSizes(data.availableSizes);
+        }
 
         if (req.file) {
             const img = await uploadToCloudinary(req.file.path, "products");

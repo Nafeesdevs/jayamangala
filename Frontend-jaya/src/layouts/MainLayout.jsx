@@ -9,9 +9,9 @@ export default function MainLayout() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-clip">
       <Navbar />
-      <main key={pathname} className="page-in flex-1"><Outlet /></main>
+      <main key={pathname} className="page-in w-full max-w-[100vw] flex-1 overflow-x-clip"><Outlet /></main>
       <Footer />
     </div>
   );

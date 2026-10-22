@@ -207,7 +207,7 @@ function Story() {
 
 /* ───────────────────────── PRODUCT RANGES (varied silhouettes) ───────────────────────── */
 function Ranges({ onEnquire }) {
-  const { t } = useLang();
+  const { t, tx } = useLang();
   const h = ["lg:row-span-2", "", "", ""];
   const radius = ["999px 999px 2rem 2rem", "2.8rem .6rem 2.8rem .6rem", ".6rem 2.8rem .6rem 2.8rem", "2.8rem 2.8rem 2.8rem .6rem"];
   return (
@@ -224,19 +224,19 @@ function Ranges({ onEnquire }) {
         {RANGES.map((r, i) => (
           <Reveal key={r.id} delay={i * 100} variant="zoom" className={h[i]}>
             <div className="img-frame group relative h-full overflow-hidden shadow-card transition-all duration-700 hover:shadow-lift" style={{ borderRadius: radius[i % 4] }}>
-              <img src={ART[r.art]} alt={r.title} className="absolute inset-0 h-full w-full object-cover" />
+              <img src={ART[r.art]} alt={tx(r.title)} className="absolute inset-0 h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/80 via-secondary-900/10 to-transparent transition group-hover:from-primary-900/90" />
               <span className="absolute left-6 top-5 font-script text-2xl font-bold text-white/90">{r.no}</span>
               <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                 <div className="flex items-end justify-between gap-3">
-                  <h3 className="min-w-0 font-display text-xl font-bold text-white sm:text-2xl">{r.title}</h3>
-                  <a href="#enquiry" onClick={() => onEnquire(r.enquiry)} aria-label={`Enquire about ${r.title}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-primary-600 transition duration-500 group-hover:rotate-45 group-hover:bg-gold-400 group-hover:text-secondary-800"><ArrowUpRight className="h-5 w-5" /></a>
+                  <h3 className="min-w-0 font-display text-xl font-bold text-white sm:text-2xl">{tx(r.title)}</h3>
+                  <a href="#enquiry" onClick={() => onEnquire(r.enquiry)} aria-label={`Enquire about ${tx(r.title)}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-primary-600 transition duration-500 group-hover:rotate-45 group-hover:bg-gold-400 group-hover:text-secondary-800"><ArrowUpRight className="h-5 w-5" /></a>
                 </div>
                 <div className="grid grid-rows-[0fr] transition-all duration-500 group-hover:grid-rows-[1fr]">
                   <div className="overflow-hidden">
-                    <p className="mt-2 text-xs text-white/85">{r.text}</p>
+                    <p className="mt-2 text-xs text-white/85">{tx(r.text)}</p>
                     <ul className="mt-2 space-y-0.5 text-xs text-white/90">
-                      {r.items.slice(0, 4).map((x) => <li key={x} className="flex gap-1.5"><Check className="mt-0.5 h-3 w-3 shrink-0 text-gold-400" />{x}</li>)}
+                      {(tx(r.items) || []).slice(0, 4).map((x) => <li key={x} className="flex gap-1.5"><Check className="mt-0.5 h-3 w-3 shrink-0 text-gold-400" />{x}</li>)}
                     </ul>
                   </div>
                 </div>
@@ -267,14 +267,14 @@ function BrandMarquee({ brands }) {
   const row = Array.from({ length: reps }).flatMap(() => brands);
   const loop = [...row, ...row];
   return (
-    <section className="mt-24 bg-cream-deep/70 py-9" style={{ borderRadius: "3rem 3rem 0 0 / 1.6rem 1.6rem 0 0" }}>
-      <p className="mb-5 text-center font-script text-3xl font-bold text-primary-600">{t("home.brands")}</p>
+    <section className="mt-8 sm:mt-12 bg-cream-deep/70 py-6 sm:py-8" style={{ borderRadius: "3rem 3rem 0 0 / 1.6rem 1.6rem 0 0" }}>
+      <p className="mb-4 text-center font-script text-3xl font-bold text-primary-600">{t("home.brands")}</p>
       <div className="overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)]">
         <div className="marquee-track flex w-max animate-marquee items-center gap-14">
           {loop.map((b, i) => (
             <div key={i} className="flex h-14 w-32 shrink-0 items-center justify-center" title={b.name}>
-              {b.image ? <img src={b.image} alt={b.name} className="max-h-12 max-w-full object-contain opacity-80 grayscale transition hover:scale-110 hover:opacity-100 hover:grayscale-0" />
-                : <span className="font-display text-lg font-bold text-ink-faint">{b.name}</span>}
+              {b.image ? <img src={b.image} alt={b.name} className="max-h-12 max-w-full object-contain opacity-95 transition-transform duration-300 hover:scale-110 active:scale-110" />
+                : <span className="font-display text-lg font-bold text-secondary-700">{b.name}</span>}
             </div>
           ))}
         </div>
@@ -331,7 +331,7 @@ function Shop({ data }) {
 
 /* ───────────────────────── WHY ───────────────────────── */
 function Why() {
-  const { t } = useLang();
+  const { t, tx } = useLang();
   const icons = [Leaf, BadgeCheck, HeartHandshake, Droplets, ShieldCheck, Truck];
   const plates = ["bg-sage", "bg-peach", "bg-butter", "bg-lilac", "bg-blush", "bg-sage"];
   const shapes = ["2.6rem .6rem 2.6rem .6rem", ".6rem 2.6rem .6rem 2.6rem"];
@@ -343,10 +343,12 @@ function Why() {
         <p className="mt-4 text-ink-soft">{t("why.sub")}</p>
       </Reveal>
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        {WHY.map(([title, text], i) => {
+        {WHY.map((item, i) => {
+          const title = tx(item.title);
+          const text = tx(item.text);
           const Icon = icons[i % icons.length];
           return (
-            <Reveal key={title} delay={(i % 3) * 100}>
+            <Reveal key={i} delay={(i % 3) * 100}>
               <Tilt className={`group relative h-full overflow-hidden border border-cream-sand/70 bg-white p-5 shadow-card sm:p-6 hover:shadow-lift ${i % 2 ? "rounded-[.6rem_2.4rem_.6rem_2.4rem]" : "rounded-[2.4rem_.6rem_2.4rem_.6rem]"}`}>
                 <div className="absolute inset-0 -z-0 opacity-0 transition duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(circle at 100% 0, rgba(223,168,57,.18), transparent 55%)" }} />
                 <span className={`${plates[i % 6]} relative flex h-14 w-14 items-center justify-center text-primary-600 transition duration-500 group-hover:rotate-6 group-hover:scale-110`} style={{ borderRadius: shapes[i % 2].split(" ").reverse().join(" ") }}><Icon className="h-6 w-6" /></span>
@@ -364,7 +366,7 @@ function Why() {
         <Sprig className="absolute left-4 top-3 h-24 w-14 -rotate-12 animate-sway text-white/20" />
         <Sprig className="absolute bottom-3 right-6 h-24 w-14 rotate-[25deg] animate-sway text-white/20" />
         <p className="relative font-script text-3xl font-bold text-gold-300">{t("why.promise")}</p>
-        <h3 className="relative mt-2 font-display text-[1.65rem] font-semibold leading-tight sm:text-5xl">Quality <span className="text-gold-400">+</span> Value <span className="text-gold-400">+</span> Reliable Distribution</h3>
+        <h3 className="relative mt-2 font-display text-[1.65rem] font-semibold leading-tight sm:text-5xl">{t("bento.small")}</h3>
       </Reveal>
     </section>
   );
@@ -372,8 +374,7 @@ function Why() {
 
 /* ───────────────────────── QUALITY ───────────────────────── */
 function Quality() {
-  const { t } = useLang();
-  const points = ["Raw Material Inspection", "Batch-wise Testing", "Weight Verification", "Packaging Inspection", "Label Verification", "Finished Product Inspection"];
+  const { t, tx } = useLang();
   return (
     <section id="quality" className="mt-20 bg-sage/60 py-16 sm:mt-32 sm:py-28" style={{ borderRadius: "4rem 4rem 0 0 / 2rem 2rem 0 0" }}>
       <div className="container-x grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
@@ -385,7 +386,7 @@ function Quality() {
             <img src={ART.coconut} alt="" className="h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/70 to-transparent" />
             <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
-              {points.slice(0, 4).map((p) => <span key={p} className="pill !border-white/30 !bg-white/20 !text-white"><Check className="h-3 w-3" />{p}</span>)}
+              {QUALITY_STEPS.slice(0, 4).map((p, idx) => <span key={idx} className="pill !border-white/30 !bg-white/20 !text-white"><Check className="h-3 w-3" />{tx(p.title)}</span>)}
             </div>
           </div>
           <div className="card mt-5 flex gap-4 p-4 sm:p-5">
@@ -399,11 +400,11 @@ function Quality() {
         </Reveal>
 
         <div className="relative space-y-4 before:absolute before:bottom-6 before:left-[23px] sm:before:left-[27px] before:top-6 before:w-0.5 before:bg-gradient-to-b before:from-primary-600 before:to-transparent">
-          {QUALITY_STEPS.map(([title, text], i) => (
-            <Reveal key={title} delay={60} variant="from-right">
+          {QUALITY_STEPS.map((step, i) => (
+            <Reveal key={i} delay={60} variant="from-right">
               <div className="card card-hover group relative flex gap-4 p-4 sm:gap-5 sm:p-5">
                 <span className="relative z-10 flex h-12 w-12 shrink-0 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-primary-600 font-display text-lg font-bold text-white shadow-glow transition duration-500 group-hover:rotate-[360deg]">{String(i + 1).padStart(2, "0")}</span>
-                <div className="pt-1"><h3 className="font-display text-lg font-bold text-secondary-700">{title}</h3><p className="mt-1 text-sm text-ink-soft">{text}</p></div>
+                <div className="pt-1"><h3 className="font-display text-lg font-bold text-secondary-700">{tx(step.title)}</h3><p className="mt-1 text-sm text-ink-soft">{tx(step.text)}</p></div>
               </div>
             </Reveal>
           ))}
@@ -415,7 +416,7 @@ function Quality() {
 
 /* ───────────────────────── JOURNEY ───────────────────────── */
 function Journey() {
-  const { t } = useLang();
+  const { t, tx } = useLang();
   return (
     <section id="journey" className="container-x pt-24 sm:pt-32">
       <Reveal className="mx-auto max-w-2xl text-center">
@@ -429,14 +430,14 @@ function Journey() {
             <span className="absolute left-[11px] top-3 z-10 flex h-5 w-5 items-center justify-center rounded-full border-4 border-cream bg-primary-600 shadow-glow lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2"><span className="absolute inset-0 animate-ping rounded-full bg-primary-600/40" /></span>
             <Reveal variant={i % 2 ? "from-right" : "from-left"} className={i % 2 ? "lg:order-2" : ""}>
               <div className="img-frame group relative aspect-[16/10] overflow-hidden shadow-lift" style={{ borderRadius: i % 2 ? ".7rem 3.5rem .7rem 3.5rem" : "3.5rem .7rem 3.5rem .7rem" }}>
-                <img src={ART[j.art]} alt={j.title} className="h-full w-full object-cover" />
+                <img src={ART[j.art]} alt={tx(j.title)} className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/35 to-transparent" />
                 <span className="absolute left-5 top-3 font-display text-5xl font-bold text-white drop-shadow-lg sm:left-6 sm:text-7xl">{j.year}</span>
               </div>
             </Reveal>
             <Reveal variant={i % 2 ? "from-left" : "from-right"} delay={100}>
-              <h3 className="font-display text-2xl font-bold text-secondary-700 sm:text-3xl">{j.title}</h3>
-              <div className="mt-3 space-y-3 text-sm leading-relaxed text-ink-soft sm:text-base">{j.text.map((p) => <p key={p}>{p}</p>)}</div>
+              <h3 className="font-display text-2xl font-bold text-secondary-700 sm:text-3xl">{tx(j.title)}</h3>
+              <div className="mt-3 space-y-3 text-sm leading-relaxed text-ink-soft sm:text-base">{(tx(j.text) || []).map((p, idx) => <p key={idx}>{p}</p>)}</div>
             </Reveal>
           </div>
         ))}
@@ -454,7 +455,7 @@ function Journey() {
 
 /* ───────────────────────── ENQUIRY → WhatsApp ───────────────────────── */
 function Enquiry({ product, setProduct }) {
-  const { t } = useLang();
+  const { t, tx, lang } = useLang();
   const [f, setF] = useState({ name: "", company: "", phone: "", email: "", ctype: "", message: "" });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
@@ -485,12 +486,17 @@ function Enquiry({ product, setProduct }) {
             <h2 className="mt-1 font-display text-[2rem] font-semibold leading-[1.05] sm:text-5xl">{t("enq.h1")}<br /><em>{t("enq.h2")}</em></h2>
             <p className="mt-4 text-sm text-white/70">{t("enq.sub")}</p>
             <div className="mt-8 space-y-5">
-              {detail(Phone, "Phone", SITE.phone, `tel:${SITE.phone.replace(/\s/g, "")}`)}
-              {detail(Mail, "Email", SITE.email, `mailto:${SITE.email}`)}
-              {detail(MapPin, "Location", SITE.address)}
+              {detail(Phone, lang === "ta" ? "தொலைபேசி" : "Phone", SITE.phone, `tel:${SITE.phone.replace(/\s/g, "")}`)}
+              {detail(Mail, lang === "ta" ? "மின்னஞ்சல்" : "Email", SITE.email, `mailto:${SITE.email}`)}
+              {detail(MapPin, lang === "ta" ? "இருப்பிடம்" : "Location", SITE.address)}
             </div>
             <div className="mt-8 flex flex-wrap gap-2">
-              {["Retail", "Wholesale", "Distribution", "Institutional Supply"].map((x) => <span key={x} className="rounded-full border border-white/25 px-3 py-1 text-xs text-white/85 transition hover:bg-white/10">{x}</span>)}
+              {[
+                { en: "Retail", ta: "சில்லறை" },
+                { en: "Wholesale", ta: "மொத்த விற்பனை" },
+                { en: "Distribution", ta: "விநியோகம்" },
+                { en: "Institutional Supply", ta: "நிறுவன விநியோகம்" }
+              ].map((x) => <span key={x.en} className="rounded-full border border-white/25 px-3 py-1 text-xs text-white/85 transition hover:bg-white/10">{tx(x)}</span>)}
             </div>
           </div>
         </Reveal>
@@ -499,15 +505,15 @@ function Enquiry({ product, setProduct }) {
           <h3 className="font-display text-2xl font-bold text-secondary-700">{t("enq.formTitle")}</h3>
           <p className="mt-1 text-sm text-ink-soft">{t("enq.formSub")}</p>
           <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div><label className="label">Name *</label><input className="input" required value={f.name} onChange={set("name")} placeholder="Your Name" /></div>
-            <div><label className="label">Company / Business</label><input className="input" value={f.company} onChange={set("company")} placeholder="Company Name" /></div>
-            <div><label className="label">Phone *</label><input className="input" type="tel" required value={f.phone} onChange={set("phone")} placeholder="Your Phone Number" /></div>
-            <div><label className="label">Email</label><input className="input" type="email" value={f.email} onChange={set("email")} placeholder="Your Email" /></div>
-            <div><label className="label">Customer Type *</label>
-              <select className="input" required value={f.ctype} onChange={set("ctype")}><option value="">Select Customer Type</option>{CUSTOMER_TYPES.map((x) => <option key={x}>{x}</option>)}</select></div>
-            <div><label className="label">Product / Enquiry *</label>
-              <select className="input" required value={product} onChange={(e) => setProduct(e.target.value)}><option value="">Select Enquiry</option>{ENQUIRY_TYPES.map((x) => <option key={x}>{x}</option>)}</select></div>
-            <div className="sm:col-span-2"><label className="label">Message</label><textarea className="input min-h-[110px]" value={f.message} onChange={set("message")} placeholder="Tell us how we can help..." /></div>
+            <div><label className="label">{lang === "ta" ? "பெயர் *" : "Name *"}</label><input className="input" required value={f.name} onChange={set("name")} placeholder={lang === "ta" ? "உங்கள் பெயர்" : "Your Name"} /></div>
+            <div><label className="label">{lang === "ta" ? "நிறுவனம் / வணிகம்" : "Company / Business"}</label><input className="input" value={f.company} onChange={set("company")} placeholder={lang === "ta" ? "நிறுவனத்தின் பெயர்" : "Company Name"} /></div>
+            <div><label className="label">{lang === "ta" ? "தொலைபேசி *" : "Phone *"}</label><input className="input" type="tel" required value={f.phone} onChange={set("phone")} placeholder={lang === "ta" ? "உங்கள் தொலைபேசி எண்" : "Your Phone Number"} /></div>
+            <div><label className="label">{lang === "ta" ? "மின்னஞ்சல்" : "Email"}</label><input className="input" type="email" value={f.email} onChange={set("email")} placeholder={lang === "ta" ? "உங்கள் மின்னஞ்சல்" : "Your Email"} /></div>
+            <div><label className="label">{lang === "ta" ? "வாடிக்கையாளர் வகை *" : "Customer Type *"}</label>
+              <select className="input" required value={f.ctype} onChange={set("ctype")}><option value="">{lang === "ta" ? "வாடிக்கையாளர் வகையைத் தேர்ந்தெடுக்கவும்" : "Select Customer Type"}</option>{CUSTOMER_TYPES.map((x) => <option key={x.en} value={x.en}>{tx(x)}</option>)}</select></div>
+            <div><label className="label">{lang === "ta" ? "பொருள் / விசாரணை *" : "Product / Enquiry *"}</label>
+              <select className="input" required value={product} onChange={(e) => setProduct(e.target.value)}><option value="">{lang === "ta" ? "விசாரணையைத் தேர்ந்தெடுக்கவும்" : "Select Enquiry"}</option>{ENQUIRY_TYPES.map((x) => <option key={x.en} value={x.en}>{tx(x)}</option>)}</select></div>
+            <div className="sm:col-span-2"><label className="label">{lang === "ta" ? "செய்தி" : "Message"}</label><textarea className="input min-h-[110px]" value={f.message} onChange={set("message")} placeholder={lang === "ta" ? "நாங்கள் உங்களுக்கு எவ்வாறு உதவலாம் என்பதைத் தெரிவிக்கவும்..." : "Tell us how we can help..."} /></div>
             <button className="btn-primary py-3.5 sm:col-span-2"><Send className="h-4 w-4" /> {t("enq.send")}</button>
           </form>
         </Reveal>
@@ -535,7 +541,7 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <div className="w-full max-w-[100vw] overflow-x-clip">
       <Hero />
       <Bento />
       <Stats />
@@ -547,6 +553,6 @@ export default function Home() {
       <Quality />
       <Journey />
       <Enquiry product={enquiry} setProduct={setEnquiry} />
-    </>
+    </div>
   );
 }

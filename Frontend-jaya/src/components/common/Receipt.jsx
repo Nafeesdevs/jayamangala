@@ -159,7 +159,9 @@ export default function Receipt({ order, hidePrint = false }) {
             {order.items?.map((i, idx) => (
               <div key={idx} className="flex items-start justify-between gap-3 py-1">
                 <span className="min-w-0 flex-1 text-ink-soft">
-                  {i.name} <span className="text-ink">x{i.quantity}</span>
+                  <span className="font-medium text-secondary-800">{i.name}</span>
+                  {i.size && <span className="ml-1 text-xs text-ink-soft">({i.size} {i.unit || ""})</span>}{" "}
+                  <span className="text-ink">x{i.quantity}</span>
                   <span className="block text-xs text-ink-faint">{money(i.price)} each</span>
                 </span>
                 <span className="font-semibold">{money(i.price * i.quantity)}</span>

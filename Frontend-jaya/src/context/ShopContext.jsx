@@ -38,24 +38,24 @@ export function ShopProvider({ children }) {
     return true;
   };
 
-  const addToCart = async (productId, qty = 1, silent = false) => {
+  const addToCart = async (productId, qty = 1, silent = false, size = "") => {
     if (!guard()) return false;
     try {
       setBusy(true);
-      const res = await CartAPI.add(productId, qty);
+      const res = await CartAPI.add(productId, qty, size);
       setCart(res.data);
       if (!silent) toast.success(t("prod.addedCart"));
       return true;
     } catch (e) { toast.error(errMsg(e)); return false; } finally { setBusy(false); }
   };
 
-  const updateQty = async (productId, qty) => {
-    try { const res = await CartAPI.update(productId, qty); setCart(res.data); }
+  const updateQty = async (productId, qty, options = {}) => {
+    try { const res = await CartAPI.update(productId, qty, options); setCart(res.data); }
     catch (e) { toast.error(errMsg(e)); }
   };
 
-  const removeFromCart = async (productId) => {
-    try { const res = await CartAPI.remove(productId); setCart(res.data); }
+  const removeFromCart = async (productId, options = {}) => {
+    try { const res = await CartAPI.remove(productId, options); setCart(res.data); }
     catch (e) { toast.error(errMsg(e)); }
   };
 

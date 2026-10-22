@@ -150,7 +150,14 @@ export default function MyOrders() {
                   {o.items.map((i, idx) => (
                     <li key={idx} className="flex items-center gap-3 text-sm">
                       <SafeImg src={i.image} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover sm:h-14 sm:w-14" />
-                      <Link to={`/product/${i.product}`} className="line-clamp-2 min-w-0 flex-1 font-medium hover:text-primary-600">{i.name}</Link>
+                      <div className="line-clamp-2 min-w-0 flex-1">
+                        <Link to={`/product/${i.product}`} className="font-medium hover:text-primary-600">{i.name}</Link>
+                        {i.size && (
+                          <p className="text-xs text-ink-soft">
+                            Size: <span className="font-semibold text-secondary-700">{i.size} {i.unit || ""}</span>
+                          </p>
+                        )}
+                      </div>
                       <span className="shrink-0 text-ink-soft">× {i.quantity}</span>
                       <span className="shrink-0 text-right font-semibold sm:w-20">{money(i.price * i.quantity)}</span>
                     </li>

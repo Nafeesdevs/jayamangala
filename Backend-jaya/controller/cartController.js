@@ -20,7 +20,7 @@ const buildCartResponse = async (userId) => {
 
 export const addToCart = async (req, res) => {
     try {
-        const { productId, quantity = 1 } = req.body;
+        const { productId, quantity = 1, size = "" } = req.body;
         const qty = Number(quantity);
 
         if (!productId || !qty || qty < 1) {
@@ -32,18 +32,25 @@ export const addToCart = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not available" });
         }
 
+        const itemSize = typeof size === "string" ? size.trim() : "";
+
         let cart = await Cart.findOne({ user: req.user._id });
 
         if (cart) {
-            const itemIndex = cart.items.findIndex(p => p.productId.toString() === productId);
+            const itemIndex = cart.items.findIndex(
+                p => p.productId.toString() === productId && (p.size || "") === itemSize
+            );
             if (itemIndex > -1) {
                 cart.items[itemIndex].quantity += qty;
             } else {
-                cart.items.push({ productId, quantity: qty });
+                cart.items.push({ productId, quantity: qty, size: itemSize });
             }
             await cart.save();
         } else {
-            cart = await Cart.create({ user: req.user._id, items: [{ productId, quantity: qty }] });
+            cart = await Cart.create({
+                user: req.user._id,
+                items: [{ productId, quantity: qty, size: itemSize }]
+            });
         }
 
         const data = await buildCartResponse(req.user._id);
@@ -65,21 +72,32 @@ export const getCart = async (req, res) => {
 
 export const updateCartQuantity = async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
+        const { productId, itemId, size, quantity } = req.body;
 
         if (!(Number(quantity) >= 1)) {
             return res.status(400).json({ success: false, message: "Quantity must be at least 1" });
         }
 
-        const cart = await Cart.findOneAndUpdate(
-            { user: req.user._id, "items.productId": productId },
-            { $set: { "items.$.quantity": Number(quantity) } },
-            { new: true }
-        );
-
+        const cart = await Cart.findOne({ user: req.user._id });
         if (!cart) {
-            return res.status(404).json({ success: false, message: "Cart or Item not found" });
+            return res.status(404).json({ success: false, message: "Cart not found" });
         }
+
+        let item = null;
+        if (itemId) {
+            item = cart.items.id(itemId);
+        } else if (productId) {
+            item = cart.items.find(
+                i => i.productId.toString() === productId && (size === undefined || (i.size || "") === (size || ""))
+            );
+        }
+
+        if (!item) {
+            return res.status(404).json({ success: false, message: "Cart Item not found" });
+        }
+
+        item.quantity = Number(quantity);
+        await cart.save();
 
         const data = await buildCartResponse(req.user._id);
         res.status(200).json({ success: true, message: "Quantity updated", data });
@@ -91,21 +109,28 @@ export const updateCartQuantity = async (req, res) => {
 
 export const removeFromCart = async (req, res) => {
     try {
-        const { productId } = req.body;
+        const { productId, itemId, size } = req.body;
 
-        await Cart.findOneAndUpdate(
-            { user: req.user._id },
-            { $pull: { items: { productId } } },
-            { new: true }
-        );
+        const cart = await Cart.findOne({ user: req.user._id });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: "Cart not found" });
+        }
 
+        if (itemId) {
+            cart.items = cart.items.filter(i => i._id.toString() !== itemId.toString());
+        } else if (productId) {
+            cart.items = cart.items.filter(
+                i => !(i.productId.toString() === productId && (size === undefined || (i.size || "") === (size || "")))
+            );
+        }
+
+        await cart.save();
         const data = await buildCartResponse(req.user._id);
         res.status(200).json({ success: true, message: "Item removed", data });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
 
 export const clearCart = async (req, res) => {
     try {

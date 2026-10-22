@@ -31,7 +31,11 @@ export const toFormData = (obj) => {
   const fd = new FormData();
   Object.entries(obj).forEach(([k, v]) => {
     if (v === undefined || v === null || v === "") return;
-    fd.append(k, v);
+    if (Array.isArray(v)) {
+      fd.append(k, JSON.stringify(v));
+    } else {
+      fd.append(k, v);
+    }
   });
   return fd;
 };

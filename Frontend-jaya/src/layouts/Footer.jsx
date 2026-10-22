@@ -6,10 +6,12 @@ import { Reveal } from "../components/common/Motion";
 import { Sprig, Sparkle, Flower } from "../components/common/Doodles";
 
 export default function Footer() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const a = "group inline-flex items-center gap-1 text-white/70 transition hover:translate-x-1 hover:text-gold-400";
   const h = "mb-4 font-display text-lg font-bold text-white";
-  const ticker = ["Quality", "Value", "Freshness", "Trust", "Reliable Distribution", "Since 1995"];
+  const ticker = [
+    t("ft.ticker1"), t("ft.ticker2"), t("ft.ticker3"), t("ft.ticker4"), t("ft.ticker5"), t("ft.ticker6")
+  ];
   return (
     <footer className="relative mt-24">
       {/* ───── red CTA banner (AI Studio "Let's create something delicious together") ───── */}
@@ -87,7 +89,7 @@ export default function Footer() {
           <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 pb-20 text-center text-xs text-white/50 sm:flex-row sm:pb-6 sm:text-left">
             <p>© {new Date().getFullYear()} {SITE.name}. {t("ft.rights")}</p>
             <p className="font-script text-xl text-gold-300 -rotate-1">{t("ft.note")}</p>
-            <p className="flex items-center gap-1">Made with <Heart className="h-3 w-3 fill-primary-400 text-primary-400" /> in Kumbakonam</p>
+            <p className="flex items-center gap-1">{t("ft.madeIn")} <Heart className="h-3 w-3 fill-primary-400 text-primary-400" /> {t("ft.inKumbakonam")}</p>
           </div>
         </div>
 

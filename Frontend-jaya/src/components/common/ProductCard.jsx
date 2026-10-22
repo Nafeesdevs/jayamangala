@@ -62,6 +62,25 @@ export default function ProductCard({ product: p, index }) {
           {p.name}
         </Link>
 
+        {p.availableSizes && p.availableSizes.length > 0 && (
+          <div className="mt-2 flex flex-wrap items-center gap-1">
+            {p.availableSizes.slice(0, 4).map((s, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center rounded-md border border-cream-sand bg-[#fbf6ec] px-1.5 py-0.5 text-[10px] font-semibold text-secondary-800"
+              >
+                {s}
+              </span>
+            ))}
+            {p.availableSizes.length > 4 && (
+              <span className="text-[10px] font-medium text-ink-faint">
+                +{p.availableSizes.length - 4}
+              </span>
+            )}
+            {p.unit && <span className="text-[10px] text-ink-faint">({p.unit})</span>}
+          </div>
+        )}
+
         <div className="mt-auto flex items-end justify-between gap-1.5 pt-3 sm:gap-2">
           <div className="min-w-0">
             {off > 0 && <span className="block text-xs text-ink-faint line-through">{money(p.oldprice)}</span>}

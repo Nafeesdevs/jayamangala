@@ -22,6 +22,15 @@ const productSchema = new mongoose.Schema({
         default: 100,
         min: [0, "Stock cannot be negative"]
     },
+    unit: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    availableSizes: {
+        type: [String],
+        default: []
+    },
     productimage: String,
     imagePublicId: String, // cloudinary public id
 }, { timestamps: true })

@@ -68,44 +68,40 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`sticky top-0 z-40 transition-colors duration-300 py-3.5 sm:py-4 ${scrolled ? "border-b border-cream-sand/90 bg-cream/95 shadow-[0_8px_30px_rgba(60,28,16,.07)] backdrop-blur-md" : "bg-cream"}`}>
-        <div className="container-x flex items-center justify-between gap-2 sm:gap-4">
+      <header className={`sticky top-0 z-40 transition-colors duration-300 py-3 sm:py-3.5 ${scrolled ? "border-b border-cream-sand/90 bg-cream/95 shadow-[0_8px_30px_rgba(60,28,16,.07)] backdrop-blur-md" : "bg-cream"}`}>
+        <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-1 px-3 sm:px-5 lg:gap-2 lg:px-6">
           {/* BRAND ZONE */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center">
             <Logo />
-            {/* <div className="hidden xl:block">
-              <span className="block font-display text-xl font-bold leading-none tracking-tight text-secondary-700">Jayamangala</span>
-              <span className="mt-1 block whitespace-nowrap font-script text-[17px] font-bold leading-none text-primary-600">{t("hd.tagline")}</span>
-            </div> */}
           </div>
 
           {/* CENTRE LINKS */}
-          <nav className="hidden min-w-0 items-center gap-0 text-[13.5px] font-medium text-secondary-800 lg:flex xl:gap-1 xl:text-[14.5px]">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0 text-[12.5px] font-medium text-secondary-800 lg:flex xl:gap-0.5 xl:text-[13.5px]">
             {centre.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end}
-                className={({ isActive }) => `nav-link whitespace-nowrap px-2 py-2 transition xl:px-3.5 duration-200 hover:-translate-y-0.5 hover:text-primary-600 ${isActive ? "active text-primary-600" : ""}`}>
+                className={({ isActive }) => `nav-link whitespace-nowrap px-1.5 py-1.5 transition xl:px-2.5 duration-200 hover:-translate-y-0.5 hover:text-primary-600 ${isActive ? "active text-primary-600" : ""}`}>
                 {l.label}
               </NavLink>
             ))}
             {isAdmin && (
-              <NavLink to="/admin" className="nav-link inline-flex items-center gap-1.5 whitespace-nowrap px-2 py-2 hover:text-primary-600 xl:px-3.5">
-                <LayoutDashboard className="h-4 w-4" />{t("nav.admin")}
+              <NavLink to="/admin" className="nav-link inline-flex items-center gap-1 whitespace-nowrap px-1.5 py-1.5 hover:text-primary-600 xl:px-2.5">
+                <LayoutDashboard className="h-3.5 w-3.5" />{t("nav.admin")}
               </NavLink>
             )}
           </nav>
 
           {/* RIGHT ACTION ZONE */}
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <LangToggle className="hidden sm:inline-flex" />
             <Link to="/wishlist" className={iconBtn} aria-label={t("nav.wishlist")}><Heart className="h-[18px] w-[18px]" /><Badge n={wishCount} /></Link>
             <Link to="/cart" className={iconBtn} aria-label={t("nav.cart")}><ShoppingBag className="h-[18px] w-[18px]" /><Badge n={cartCount} /></Link>
             {user ? (
-              <button onClick={doLogout} aria-label={t("nav.logout")} className="btn-primary hidden px-5 sm:inline-flex lg:px-3 xl:px-5"><LogOut className="h-4 w-4" /><span className="lg:hidden xl:inline">{t("nav.logout")}</span></button>
+              <button onClick={doLogout} aria-label={t("nav.logout")} className="btn-primary hidden px-3.5 py-2 text-xs sm:inline-flex lg:px-2.5 xl:px-4"><LogOut className="h-3.5 w-3.5" /><span className="inline">{t("nav.logout")}</span></button>
             ) : (
-              <Link to="/login" aria-label={t("nav.login")} className="btn-primary hidden px-5 sm:inline-flex lg:px-3 xl:px-5"><User className="h-4 w-4 text-primary-100" /><span className="lg:hidden xl:inline">{t("nav.login")}</span></Link>
+              <Link to="/login" aria-label={t("nav.login")} className="btn-primary hidden px-3.5 py-2 text-xs sm:inline-flex lg:px-2.5 xl:px-4"><User className="h-3.5 w-3.5 text-primary-100" /><span className="inline">{t("nav.login")}</span></Link>
             )}
             <button onClick={() => setOpen(true)} aria-label="Open navigation menu" aria-expanded={open}
-              className="group shrink-0 rounded-xl border border-cream-sand p-2 text-secondary-700 sm:p-2.5 transition-colors hover:bg-primary-50 hover:text-primary-600">
+              className="group flex shrink-0 rounded-xl border border-cream-sand p-2 text-secondary-700 transition-colors hover:bg-primary-50 hover:text-primary-600 sm:p-2.5 lg:hidden">
               <Menu className="h-5 w-5 stroke-[2] transition-transform group-hover:scale-110 sm:h-6 sm:w-6" />
             </button>
           </div>

@@ -81,7 +81,7 @@ export default function Orders() {
           name="orders"
           getRows={() => filtered.map((o) => ({
             "Order ID": o.orderId, Date: fmtDate(o.createdAt, true), Customer: o.customerDetails?.name, Phone: o.customerDetails?.phone,
-            Address: `${o.customerDetails?.address} - ${o.customerDetails?.pincode}`, Items: o.items.map((i) => `${i.name} x${i.quantity}`).join("; "),
+            Address: `${o.customerDetails?.address} - ${o.customerDetails?.pincode}`, Items: o.items.map((i) => `${i.name}${i.size ? ` (${i.size}${i.unit ? ` ${i.unit}` : ""})` : ""} x${i.quantity}`).join("; "),
             Subtotal: o.pricing?.subtotal, Delivery: o.pricing?.deliveryCharge, Total: o.pricing?.total,
             "Payment method": o.payment?.method, "Payment status": o.payment?.status, "Order status": o.status,
             "Transaction ID": o.payment?.paymentId?.transactionId || "", Screenshot: o.payment?.screenshot || "",
@@ -130,7 +130,14 @@ export default function Orders() {
                     <li key={idx} className="flex items-center gap-3 p-3">
                       {i.image ? <img src={i.image} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" /> : <span className="h-12 w-12 shrink-0 rounded-lg bg-ink-wash" />}
                       <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-3">
-                        <span className="min-w-0 flex-1 font-medium">{i.name}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="font-medium text-secondary-900">{i.name}</span>
+                          {i.size && (
+                            <span className="ml-2 inline-flex items-center rounded bg-cream-deep px-1.5 py-0.5 text-xs font-semibold text-secondary-800">
+                              {i.size} {i.unit || ""}
+                            </span>
+                          )}
+                        </div>
                         <span className="text-xs text-ink-soft sm:text-sm">{money(i.price)} × {i.quantity}</span>
                       </div>
                       <b className="shrink-0 text-right sm:w-20">{money(i.price * i.quantity)}</b>

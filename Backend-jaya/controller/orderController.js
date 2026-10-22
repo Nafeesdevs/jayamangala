@@ -54,6 +54,8 @@ export const createorder = async (req, res) => {
         const items = validItems.map(i => ({
             product: i.productId._id,
             name: i.productId.name,
+            size: i.size || "",
+            unit: i.productId.unit || "",
             price: i.productId.price,
             quantity: i.quantity,
             image: i.productId.productimage,

@@ -18,13 +18,17 @@ export default function ProductDetail() {
   const [p, setP] = useState(undefined);
   const [related, setRelated] = useState([]);
   const [qty, setQty] = useState(1);
+  const [selectedSize, setSelectedSize] = useState("");
 
   useEffect(() => {
-    setP(undefined); setQty(1);
+    setP(undefined); setQty(1); setSelectedSize("");
     void (async () => {
       try {
         const r = await ProductAPI.get(id);
         setP(r.data);
+        if (r.data?.availableSizes?.length > 0) {
+          setSelectedSize(r.data.availableSizes[0]);
+        }
         if (r.data?.category?._id) {
           const rel = await ProductAPI.list({ status: "Active", category: r.data.category._id, limit: 5, page: 1 });
           setRelated((rel.data || []).filter((x) => x._id !== id).slice(0, 4));
@@ -41,7 +45,7 @@ export default function ProductDetail() {
   const liked = wishIds.has(p._id);
 
   const buyNow = async () => {
-    if (await addToCart(p._id, qty, true)) nav("/checkout");
+    if (await addToCart(p._id, qty, true, selectedSize)) nav("/checkout");
   };
 
   return (
@@ -72,6 +76,36 @@ export default function ProductDetail() {
             {out ? t("common.outOfStock") : p.stock <= 5 ? t("prod.only", { n: p.stock }) : t("common.inStock")}
           </p>
 
+          {p.availableSizes && p.availableSizes.length > 0 && (
+            <div className="mt-6 border-t border-ink-line pt-6">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-secondary-800">
+                  Available Size{p.availableSizes.length > 1 ? "s" : ""}:
+                </span>
+                {p.unit && <span className="text-xs text-ink-faint">Unit: {p.unit}</span>}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {p.availableSizes.map((sz) => {
+                  const active = selectedSize === sz;
+                  return (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => setSelectedSize(sz)}
+                      className={`inline-flex items-center justify-center rounded-xl border px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 ${
+                        active
+                          ? "border-primary-600 bg-primary-50 text-primary-700 shadow-sm ring-1 ring-primary-600"
+                          : "border-cream-sand bg-white text-secondary-700 hover:border-primary-300 hover:bg-cream-sand/30"
+                      }`}
+                    >
+                      {sz} {p.unit ? <span className="ml-1 text-xs font-normal opacity-80">{p.unit}</span> : null}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {p.description && (
             <div className="mt-6 border-t border-ink-line pt-6">
               <h3 className="mb-2 text-sm font-semibold">{t("prod.desc")}</h3>
@@ -91,7 +125,7 @@ export default function ProductDetail() {
           )}
 
           <div className="mt-6 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 sm:flex sm:flex-wrap sm:gap-3">
-            <button disabled={out} className="btn-primary whitespace-nowrap px-3 py-3 sm:flex-none sm:px-8" onClick={() => addToCart(p._id, qty)}>
+            <button disabled={out} className="btn-primary whitespace-nowrap px-3 py-3 sm:flex-none sm:px-8" onClick={() => addToCart(p._id, qty, false, selectedSize)}>
               <ShoppingBag className="h-4 w-4" />{t("common.addToCart")}
             </button>
             <button disabled={out} className="btn-green whitespace-nowrap px-3 py-3 sm:flex-none sm:px-8" onClick={buyNow}>
