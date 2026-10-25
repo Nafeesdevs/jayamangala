@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Clock, Mail, MapPin, Phone, Target, Eye } from "lucide-react";
+import { CheckCircle2, Clock, Mail, MapPin, Phone, Target, Eye } from "lucide-react";
 import { useLang } from "../context/LangContext";
 import { SITE } from "../config/site";
-import { Field } from "../components/common/ui";
+import { Field, Spinner } from "../components/common/ui";
+import { usePageMeta } from "../hooks/usePageMeta";
+import { LeadAPI } from "../api/services";
+import { errMsg } from "../api/client";
+import { track } from "../hooks/useAnalytics";
 
-const Wrap = ({ title, children, narrow = true }) => (
+const Wrap = ({ title, children, narrow = true, noGap = false }) => (
   <div className={`container-x py-8 sm:py-14 ${narrow ? "max-w-3xl" : ""}`}>
     <h1 className="font-display text-[2rem] font-semibold leading-tight sm:text-5xl">{title}</h1>
     {children}
@@ -15,46 +19,167 @@ const Wrap = ({ title, children, narrow = true }) => (
 
 export function About() {
   const { t } = useLang();
+  usePageMeta("About Us", "Learn about Jayamangala Agro Foods — quality edible oils and food products from Kumbakonam, Tamil Nadu since 1995.");
   return (
-    <Wrap title={t("about.title")}>
-      <img src="/logo.png" alt="Jayamangala Agro Foods" className="mt-6 h-16 w-auto rounded-xl object-contain shadow-glow" />
-      <p className="mt-6 text-ink-soft">{t("about.p1")}</p>
-      <p className="mt-4 text-ink-soft">{t("about.p2")}</p>
-      <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2">
-        <div className="card p-5 sm:p-6"><Target className="h-6 w-6 text-primary-600" /><h3 className="mt-3 font-semibold">{t("about.mission")}</h3><p className="mt-1 text-sm text-ink-soft">{t("about.missionD")}</p></div>
-        <div className="card p-5 sm:p-6"><Eye className="h-6 w-6 text-secondary-600" /><h3 className="mt-3 font-semibold">{t("about.vision")}</h3><p className="mt-1 text-sm text-ink-soft">{t("about.visionD")}</p></div>
+    <div className="w-full overflow-x-hidden py-6 sm:py-10">
+      <div className="mx-auto w-full max-w-7xl px-5 sm:px-6 md:px-8">
+        <div className="grid items-start gap-8 lg:grid-cols-12 lg:gap-8 xl:gap-10">
+          {/* Left column: Brand story, details, mission & vision */}
+          <div className="w-full min-w-0 break-words lg:col-span-5">
+            <h1 className="font-display text-[2rem] font-semibold leading-tight sm:text-5xl">{t("about.title")}</h1>
+            <img src="/logo.png" alt="Jayamangala Agro Foods" className="mt-3.5 h-14 sm:h-16 w-auto rounded-xl object-contain shadow-glow" />
+            <p className="mt-4 text-sm leading-relaxed text-ink-soft sm:text-base break-words">{t("about.p1")}</p>
+            <p className="mt-3 text-sm leading-relaxed text-ink-soft sm:text-base break-words">{t("about.p2")}</p>
+            {t("about.p3") && <p className="mt-3 text-sm leading-relaxed text-ink-soft sm:text-base break-words">{t("about.p3")}</p>}
+            
+            {/* Trust Highlights Checklist */}
+            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+              {[
+                { label: "100% Cold Pressed Oils", sub: "Groundnut, Sesame & Coconut" },
+                { label: "Aarvikaa Fresh Dairy", sub: "Farm Milk, Curd & Dairy" },
+                { label: "Food Provisions & Staples", sub: "Grains, Pulses & Pooja Essentials" }
+              ].map((item, idx) => (
+                <div key={idx} className="w-full min-w-0 rounded-xl border border-cream-sand bg-white/70 p-3 shadow-sm backdrop-blur">
+                  <p className="text-xs font-bold text-secondary-800 break-words">✓ {item.label}</p>
+                  <p className="text-[11px] text-ink-faint mt-0.5 break-words">{item.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="card w-full min-w-0 p-4 sm:p-6">
+                <Target className="h-6 w-6 text-primary-600" />
+                <h3 className="mt-2.5 font-semibold text-secondary-800 break-words">{t("about.mission")}</h3>
+                <p className="mt-1 text-sm text-ink-soft leading-relaxed break-words">{t("about.missionD")}</p>
+              </div>
+              <div className="card w-full min-w-0 p-4 sm:p-6">
+                <Eye className="h-6 w-6 text-secondary-600" />
+                <h3 className="mt-2.5 font-semibold text-secondary-800 break-words">{t("about.vision")}</h3>
+                <p className="mt-1 text-sm text-ink-soft leading-relaxed break-words">{t("about.visionD")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right column: Wide Storefront Showcase Card (Fully responsive across all screen sizes) */}
+          <div className="w-full min-w-0 lg:col-span-7 lg:-mt-2 lg:-mr-4 xl:-mr-8">
+            <div className="group relative w-full overflow-hidden rounded-[2rem_.6rem_2rem_.6rem] sm:rounded-[2.5rem_.8rem_2.5rem_.8rem] border border-cream-sand bg-white p-2.5 sm:p-3 shadow-lift transition-all duration-500 hover:-translate-y-1">
+              <div className="relative aspect-[4/3] w-full min-h-[260px] sm:min-h-[460px] md:min-h-[500px] lg:min-h-[540px] overflow-hidden rounded-[1.6rem_.5rem_1.6rem_.5rem] sm:rounded-[2rem_.6rem_2rem_.6rem] bg-cream-deep/60">
+                <img 
+                  src="/images/jayamangala-store.jpg" 
+                  alt="Jayamangala Agro Foods Storefront" 
+                  className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/90 via-secondary-900/30 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 text-white sm:bottom-6 sm:left-6 sm:right-6">
+                  <span className="inline-block rounded-full bg-primary-600 px-3 py-1 text-[11px] sm:text-xs font-bold tracking-wide uppercase shadow-sm">
+                    Kumbakonam Store & Online
+                  </span>
+                  <h4 className="mt-2 font-display text-lg font-bold leading-snug sm:text-2xl text-white">
+                    Pure Oils · Fresh Milk · Daily Foods
+                  </h4>
+                  <p className="mt-1 text-[11px] sm:text-xs text-white/90">
+                    Serving thousands of happy families and businesses since 1995.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </Wrap>
+    </div>
   );
 }
 
 export function Contact() {
-  const { t } = useLang();
-  const [f, setF] = useState({ name: "", email: "", message: "" });
-  const submit = (e) => { e.preventDefault(); toast.success(t("contact.sent")); setF({ name: "", email: "", message: "" }); };
+  const { t, lang } = useLang();
+  usePageMeta("Contact Us", "Get in touch with Jayamangala Agro Foods. Visit us at Kumbakonam or call +91 93443 02121.");
+  const [f, setF] = useState({ name: "", phone: "", email: "", message: "" });
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!f.name.trim()) return toast.error(lang === "ta" ? "பெயர் தேவை" : "Name is required");
+    if (!/^\d{10}$/.test(f.phone.replace(/[\s\-()]/g, ""))) {
+      return toast.error(lang === "ta" ? "சரியான 10 இலக்க தொலைபேசி எண் தேவை" : "Enter a valid 10-digit phone number");
+    }
+    if (!f.message.trim()) return toast.error(lang === "ta" ? "செய்தி தேவை" : "Message is required");
+
+    setBusy(true);
+    try {
+      await LeadAPI.contact({
+        name: f.name.trim(),
+        phone: f.phone.trim(),
+        email: f.email.trim(),
+        message: f.message.trim(),
+      });
+      track("contact_submit");
+      setDone(true);
+    } catch (err) {
+      toast.error(errMsg(err) || (lang === "ta" ? "சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்." : "Submission failed. Please try again."));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const rows = [
-    [MapPin, t("contact.visit"), SITE.address], [Phone, t("contact.call"), SITE.phone],
-    [Mail, t("contact.mail"), SITE.email], [Clock, t("contact.hours"), SITE.hours],
+    [MapPin, t("contact.visit"), SITE.address, null],
+    [Phone, t("contact.call"), SITE.phone, `tel:${SITE.phone.replace(/\s/g, "")}`],
+    [Mail, t("contact.mail"), SITE.email, `mailto:${SITE.email}`],
+    [Clock, t("contact.hours"), SITE.hours, null],
   ];
+
   return (
     <Wrap title={t("contact.title")} narrow={false}>
       <p className="mt-2 text-ink-soft">{t("contact.sub")}</p>
       <div className="mt-8 grid gap-6 sm:mt-10 lg:grid-cols-2 lg:gap-8">
         <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-1">
-          {rows.map(([Icon, l, v]) => (
+          {rows.map(([Icon, l, v, href]) => (
             <div key={l} className="card flex min-w-0 gap-4 p-4 sm:p-5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary-50 text-secondary-600"><Icon className="h-5 w-5" /></span>
-              <div className="min-w-0"><p className="text-xs text-ink-soft">{l}</p><p className="wrap-anywhere font-medium">{v}</p></div>
+              <div className="min-w-0"><p className="text-xs text-ink-soft">{l}</p>
+                {href ? <a href={href} className="wrap-anywhere font-medium hover:text-primary-600">{v}</a> : <p className="wrap-anywhere font-medium">{v}</p>}
+              </div>
             </div>
           ))}
         </div>
-        <form onSubmit={submit} className="card min-w-0 space-y-4 p-5 sm:p-6">
-          <h2 className="font-semibold">{t("contact.form")}</h2>
-          <Field label={t("auth.name")}><input className="input" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
-          <Field label={t("auth.email")}><input className="input" type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
-          <Field label={t("contact.msg")}><textarea className="input min-h-[120px]" required value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} /></Field>
-          <button className="btn-primary">{t("contact.send")}</button>
-        </form>
+
+        {done ? (
+          <div className="card flex flex-col items-center justify-center gap-4 p-8 text-center">
+            <CheckCircle2 className="h-14 w-14 text-secondary-600" />
+            <h2 className="font-display text-2xl font-bold text-secondary-700">
+              {lang === "ta" ? "நன்றி!" : "Thank you!"}
+            </h2>
+            <p className="text-sm text-ink-soft">
+              {lang === "ta"
+                ? "உங்கள் செய்தி அனுப்பப்பட்டது. நாங்கள் விரைவில் தொடர்பு கொள்வோம்."
+                : "Your message has been saved. We'll get back to you shortly."}
+            </p>
+            <button className="btn-outline mt-2" onClick={() => { setDone(false); setF({ name: "", phone: "", email: "", message: "" }); }}>
+              {lang === "ta" ? "மற்றொரு செய்தி அனுப்பு" : "Send another message"}
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={submit} className="card min-w-0 space-y-4 p-5 sm:p-6">
+            <h2 className="font-semibold">{t("contact.form")}</h2>
+            <Field label={lang === "ta" ? "பெயர் *" : "Name *"}>
+              <input className="input" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} maxLength={100} />
+            </Field>
+            <Field label={lang === "ta" ? "தொலைபேசி எண் *" : "Phone Number *"}>
+              <input className="input" type="tel" required inputMode="numeric" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} maxLength={15} />
+            </Field>
+            <Field label={t("auth.email")}>
+              <input className="input" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} maxLength={200} />
+            </Field>
+            <Field label={lang === "ta" ? "செய்தி *" : "Message *"}>
+              <textarea className="input min-h-[120px]" required value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} maxLength={2000} />
+              <p className="mt-1 text-right text-xs text-ink-faint">{f.message.length}/2000</p>
+            </Field>
+            <button className="btn-primary w-full" disabled={busy}>
+              {busy ? <><Spinner className="h-4 w-4 !text-white" />{lang === "ta" ? "அனுப்புகிறது…" : "Sending…"}</> : t("contact.send")}
+            </button>
+          </form>
+        )}
       </div>
     </Wrap>
   );

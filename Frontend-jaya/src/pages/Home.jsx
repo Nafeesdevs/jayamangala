@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, BadgeCheck, ShieldCheck, Truck, Wallet, Phone, Mail, MapPin, Send, Check, Tag, Sparkles, Leaf, Droplets, HeartHandshake, Award } from "lucide-react";
-import { BrandAPI, CategoryAPI, ProductAPI } from "../api/services";
+import { ArrowRight, ArrowUpRight, BadgeCheck, ShieldCheck, Truck, Wallet, Phone, Mail, MapPin, Send, Check, Tag, Sparkles, Leaf, Droplets, HeartHandshake, Award, Star, Quote, Package, Users } from "lucide-react";
+import { BrandAPI, CategoryAPI, ProductAPI, LeadAPI } from "../api/services";
+import { errMsg } from "../api/client";
+import { track } from "../hooks/useAnalytics";
 import { useLang } from "../context/LangContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 import ProductCard from "../components/common/ProductCard";
-import { SafeImg } from "../components/common/ui";
+import { SafeImg, Spinner } from "../components/common/ui";
 import { Reveal, CountUp, Tilt } from "../components/common/Motion";
 import { Sprig, Sparkle, Flower, Steam, Arrow } from "../components/common/Doodles";
 import { ART, SITE } from "../config/site";
-import { RANGES, WHY, QUALITY_STEPS, JOURNEY, CUSTOMER_TYPES, ENQUIRY_TYPES } from "../config/content";
+import { RANGES, WHY, QUALITY_STEPS, JOURNEY, CUSTOMER_TYPES, ENQUIRY_TYPES, TESTIMONIALS, TRUST_ITEMS } from "../config/content";
+import toast from "react-hot-toast";
 
 /* ───────────────────────── HERO (floating tilted cards + hand-written notes) ───────────────────────── */
 function FloatCard({ src, plate, rot, note, noteClass = "", className = "", depth = 10, delay = 0, noteTilt = "-rotate-6", children }) {
@@ -79,11 +83,13 @@ function Hero() {
             </em><br />
             <span className="squiggle">{t("hero2.l3")}</span>
           </h1>
-          <p className="animate-rise mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg" style={{ animationDelay: ".3s" }}>{t("hero.line")}</p>
-          <p className="animate-rise mt-2 max-w-md text-sm text-ink-faint" style={{ animationDelay: ".38s" }}>{t("hero.sub")}</p>
-          <div className="animate-rise mt-8 flex w-full flex-col items-stretch justify-center gap-3 min-[420px]:w-auto min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center" style={{ animationDelay: ".48s" }}>
-            <Link to="/products" className="btn bg-secondary-700 px-7 py-3.5 text-[15px] text-white shadow-soft hover:-translate-y-0.5 hover:bg-secondary-800">{t("hero.shop")} <ArrowRight className="h-4 w-4" /></Link>
-            <a href="#enquiry" className="btn border border-secondary-700/40 bg-transparent px-7 py-3.5 text-[15px] text-secondary-700 hover:-translate-y-0.5 hover:bg-white">{t("hero.enquiry")}</a>
+          <p className="animate-rise mt-5 max-w-lg text-base font-medium leading-relaxed text-secondary-700 sm:text-lg" style={{ animationDelay: ".3s" }}>{t("hero.line")}</p>
+          <p className="animate-rise mt-2 max-w-md text-xs text-ink-soft sm:text-sm" style={{ animationDelay: ".38s" }}>{t("hero.sub")}</p>
+          <div className="animate-rise mt-9 flex w-full flex-col items-stretch justify-center gap-3 min-[420px]:w-auto min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center" style={{ animationDelay: ".48s" }}>
+            <Link to="/products" className="btn relative overflow-hidden bg-primary-600 px-8 py-4 text-base font-bold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-[0_0_28px_rgba(163,28,30,.45)]">
+              <span className="relative flex items-center gap-2">{t("hero.shop")} <ArrowRight className="h-4 w-4" /></span>
+            </Link>
+            <Link to="/wholesale" className="btn border-2 border-secondary-700/50 bg-transparent px-7 py-3.5 text-[15px] font-semibold text-secondary-700 hover:-translate-y-0.5 hover:border-secondary-700 hover:bg-secondary-50">{t("hero.enquiry")}</Link>
           </div>
           <Arrow className="pointer-events-none absolute -bottom-2 left-[6%] hidden h-14 w-16 rotate-[-20deg] text-primary-600/70 xl:block" />
         </div>
@@ -106,6 +112,161 @@ function Hero() {
             </Reveal>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────────────────── ANNOUNCEMENT BAR (Seamless Infinite Ticker) ───────────────────────── */
+function AnnouncementBar() {
+  const { t } = useLang();
+  // 4 distinct items repeated in 2 identical halves to fill any viewport width seamlessly
+  const baseItems = ["ann.4", "ann.1", "ann.2", "ann.3"];
+  const halfItems = [...baseItems, ...baseItems];
+
+  return (
+    <div className="relative overflow-hidden bg-secondary-800 py-2.5 shadow-inner">
+      {/* Edge gradient masks for seamless fade in and out */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-secondary-800 to-transparent sm:w-16" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-secondary-800 to-transparent sm:w-16" />
+
+      <div className="animate-infinite-scroll">
+        {/* First Half */}
+        <div className="flex shrink-0 items-center gap-8 sm:gap-14 pr-8 sm:pr-14">
+          {halfItems.map((k, idx) => (
+            <span key={`set1-${idx}`} className="flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide text-white/95">
+              <span>{t(k)}</span>
+              <span className="text-primary-300 opacity-60">✦</span>
+            </span>
+          ))}
+        </div>
+
+        {/* Second Half (Exact clone of First Half so translateX(-50%) creates a 100% gapless loop) */}
+        <div className="flex shrink-0 items-center gap-8 sm:gap-14 pr-8 sm:pr-14" aria-hidden="true">
+          {halfItems.map((k, idx) => (
+            <span key={`set2-${idx}`} className="flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide text-white/95">
+              <span>{t(k)}</span>
+              <span className="text-primary-300 opacity-60">✦</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── HOW TO ORDER ───────────────────────── */
+function HowToOrder() {
+  const { t } = useLang();
+  const steps = [
+    { icon: Package, num: "01", title: "how.s1", desc: "how.s1d", bg: "bg-sage",  shape: "2.6rem .6rem 2.6rem .6rem" },
+    { icon: Wallet,  num: "02", title: "how.s2", desc: "how.s2d", bg: "bg-peach", shape: ".6rem 2.6rem .6rem 2.6rem" },
+    { icon: Truck,   num: "03", title: "how.s3", desc: "how.s3d", bg: "bg-butter",shape: "2.6rem .6rem 2.6rem .6rem" },
+  ];
+  return (
+    <section className="container-x pt-16 sm:pt-24">
+      <Reveal className="text-center">
+        <p className="eyebrow">{t("how.kicker")}</p>
+        <h2 className="h-section mt-2">{t("how.title")}</h2>
+        <p className="mx-auto mt-3 max-w-lg text-sm text-ink-soft">{t("how.sub")}</p>
+      </Reveal>
+
+      <div className="relative mt-10 grid gap-4 sm:grid-cols-3 sm:gap-6 lg:gap-8">
+        {/* connector line between steps (desktop) */}
+        <span className="pointer-events-none absolute left-[22%] right-[22%] top-10 hidden h-0.5 bg-gradient-to-r from-primary-200 via-primary-400 to-primary-200 sm:block" />
+        {steps.map(({ icon: Icon, num, title, desc, bg, shape }, i) => (
+          <Reveal key={i} delay={i * 130} variant="zoom">
+            <div className="group relative flex flex-col items-center gap-4 border border-cream-sand/70 bg-white p-6 text-center shadow-card transition-all duration-500 hover:-translate-y-2 hover:shadow-lift" style={{ borderRadius: shape }}>
+              {/* step badge */}
+              <span className={`${bg} relative flex h-16 w-16 items-center justify-center text-primary-600 shadow-soft transition duration-500 group-hover:rotate-6 group-hover:scale-110`} style={{ borderRadius: shape }}>
+                <Icon className="h-7 w-7" />
+                <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+                  {num}
+                </span>
+              </span>
+              <div>
+                <h3 className="font-display text-lg font-bold text-secondary-700">{t(title)}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{t(desc)}</p>
+              </div>
+              {/* hover underline accent */}
+              <span className="absolute inset-x-6 bottom-0 h-1 origin-left scale-x-0 rounded-t-full bg-primary-600 transition duration-500 group-hover:scale-x-100" />
+            </div>
+          </Reveal>
+        ))}
+      </div>
+
+      <Reveal delay={400} className="mt-8 flex justify-center">
+        <Link to="/products" className="btn-primary px-9 py-3.5 text-[15px] shadow-glow">
+          {t("hero.shop")} <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Reveal>
+    </section>
+  );
+}
+
+/* ───────────────────────── TRUST STRIP ───────────────────────── */
+const TRUST_ICONS = { BadgeCheck, ShieldCheck, Award, MapPin, Truck };
+
+function TrustStrip() {
+  const { t } = useLang();
+  const items = [
+    { key: "trust.gst",        icon: "BadgeCheck"  },
+    { key: "trust.fssai",      icon: "ShieldCheck" },
+    { key: "trust.years",      icon: "Award"       },
+    { key: "trust.kumbakonam", icon: "MapPin"       },
+    { key: "trust.wholesale",  icon: "Truck"        },
+  ];
+  return (
+    <div className="border-y border-cream-sand/70 bg-cream-deep/60 py-3 sm:py-4">
+      <div className="container-x">
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:gap-x-8 lg:gap-x-10">
+          {items.map(({ key, icon }) => {
+            const Icon = TRUST_ICONS[icon];
+            return (
+              <div key={key} className="flex items-center gap-2 text-xs font-semibold text-secondary-700 sm:text-sm">
+                <Icon className="h-3.5 w-3.5 shrink-0 text-primary-600 sm:h-4 sm:w-4" />
+                <span>{t(key)}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── TESTIMONIALS (hidden when empty) ───────────────────────── */
+function Testimonials() {
+  const { t, tx } = useLang();
+  if (!TESTIMONIALS || TESTIMONIALS.length === 0) return null;
+  const plates = ["bg-sage", "bg-peach", "bg-butter", "bg-lilac", "bg-blush"];
+  return (
+    <section className="container-x pt-24 sm:pt-32">
+      <Reveal className="text-center">
+        <p className="eyebrow">{t("testi.kicker")}</p>
+        <h2 className="h-section mt-2">{t("testi.title")}</h2>
+      </Reveal>
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+        {TESTIMONIALS.map((item, i) => (
+          <Reveal key={i} delay={i * 100} variant="zoom">
+            <div className={`relative h-full overflow-hidden border border-cream-sand/60 bg-white p-5 shadow-card sm:p-6 ${i % 2 ? "rounded-[.6rem_2.4rem_.6rem_2.4rem]" : "rounded-[2.4rem_.6rem_2.4rem_.6rem]"}`}>
+              <Quote className="absolute right-5 top-4 h-8 w-8 text-primary-100" />
+              <p className="relative text-sm leading-relaxed text-ink-soft">{tx(item.quote)}</p>
+              <div className="mt-5 flex items-center gap-3">
+                <span className={`${plates[i % 5]} flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-secondary-700`}>
+                  {item.initials}
+                </span>
+                <div>
+                  <p className="font-display text-sm font-bold text-secondary-700">{item.name}</p>
+                  <p className="text-xs text-ink-soft">{tx(item.role)}</p>
+                </div>
+                <div className="ml-auto flex gap-0.5">
+                  {[1,2,3,4,5].map(s => <Star key={s} className="h-3.5 w-3.5 fill-gold-400 text-gold-400" />)}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        ))}
       </div>
     </section>
   );
@@ -148,24 +309,110 @@ function Bento() {
   );
 }
 
-/* ───────────────────────── STATS (seal badges) ───────────────────────── */
+/* ───────────────────────── STATS (Premium Customer-Focused Modern Cards) ───────────────────────── */
 function Stats() {
   const { t } = useLang();
   const years = new Date().getFullYear() - 1995;
-  const data = [[years, "+", "stat.years", "bg-butter", Award], [4, "", "stat.ranges", "bg-blush", Droplets], [12, "", "stat.products", "bg-sage", Leaf], [6, "", "stat.checks", "bg-lilac", ShieldCheck]];
-  const shapes = ["shape-pebble", "shape-leaf", "shape-pebble", "shape-leaf-alt"];
+
+  const data = [
+    {
+      num: years,
+      suffix: "+",
+      label: "stat.years",
+      sub: "stat.yearsSub",
+      icon: Award,
+      badge: "Legacy",
+      color: "from-amber-500/15 via-gold-400/10 to-transparent",
+      accent: "text-amber-600 bg-amber-50 border-amber-200/60",
+      glow: "hover:shadow-amber-500/10",
+      barColor: "bg-amber-500",
+    },
+    {
+      num: 4,
+      suffix: "",
+      label: "stat.ranges",
+      sub: "stat.rangesSub",
+      icon: Droplets,
+      badge: "Curated",
+      color: "from-primary-600/15 via-primary-500/10 to-transparent",
+      accent: "text-primary-600 bg-primary-50 border-primary-200/60",
+      glow: "hover:shadow-primary-600/10",
+      barColor: "bg-primary-600",
+    },
+    {
+      num: 25000,
+      suffix: "+",
+      label: "stat.products",
+      sub: "stat.productsSub",
+      icon: Users,
+      badge: "Community",
+      color: "from-secondary-600/15 via-emerald-500/10 to-transparent",
+      accent: "text-secondary-600 bg-secondary-50 border-secondary-200/60",
+      glow: "hover:shadow-secondary-600/10",
+      barColor: "bg-secondary-600",
+      format: (n) => n >= 1000 ? `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : n,
+    },
+    {
+      num: 100,
+      suffix: "%",
+      label: "stat.checks",
+      sub: "stat.checksSub",
+      icon: ShieldCheck,
+      badge: "Certified",
+      color: "from-blue-600/15 via-indigo-500/10 to-transparent",
+      accent: "text-blue-600 bg-blue-50 border-blue-200/60",
+      glow: "hover:shadow-blue-600/10",
+      barColor: "bg-blue-600",
+    },
+  ];
+
   return (
-    <section className="container-x py-14 sm:py-24">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
-        {data.map(([n, s, l, bg, Icon], i) => (
-          <Reveal key={l} delay={i * 110} variant="zoom">
-            <div className={`${bg} ${shapes[i]} group relative overflow-hidden px-3 py-6 text-center sm:px-4 transition duration-500 hover:-translate-y-2 hover:rotate-[-2deg] sm:py-9`}>
-              <Icon className="absolute right-3 top-3 h-5 w-5 text-primary-600/40 sm:right-4 sm:top-4 sm:h-7 sm:w-7 transition duration-700 group-hover:rotate-12 group-hover:scale-125" />
-              <p className="relative font-display text-4xl font-bold text-secondary-700 sm:text-6xl"><CountUp to={n} suffix={s} /></p>
-              <p className="relative mt-1 font-script text-lg font-bold leading-tight text-primary-700 sm:text-2xl">{t(l)}</p>
-            </div>
-          </Reveal>
-        ))}
+    <section className="container-x py-14 sm:py-20">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        {data.map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <Reveal key={item.label} delay={i * 100} variant="zoom">
+              <div
+                className={`group relative overflow-hidden rounded-3xl border border-cream-sand/80 bg-gradient-to-b from-white via-white to-cream-deep/30 p-6 sm:p-7 shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-xl ${item.glow}`}
+              >
+                {/* Ambient dynamic background gradient glow */}
+                <div
+                  className={`pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-gradient-to-br ${item.color} blur-2xl transition-opacity duration-700 group-hover:scale-150 group-hover:opacity-100`}
+                />
+
+                {/* Top header row: Icon + Customer-centric status tag */}
+                <div className="relative flex items-center justify-between">
+                  <span className={`flex h-12 w-12 items-center justify-center rounded-2xl border shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 ${item.accent}`}>
+                    <Icon className="h-6 w-6 stroke-[2.2]" />
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-secondary-700/10 bg-white/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-secondary-700/80 shadow-xs backdrop-blur-sm">
+                    <span className={`h-1.5 w-1.5 rounded-full ${item.barColor} animate-pulse`} />
+                    {item.badge}
+                  </span>
+                </div>
+
+                {/* Metric value with smooth count-up animation */}
+                <div className="relative mt-6">
+                  <div className="flex items-baseline font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-secondary-850">
+                    <CountUp to={item.num} suffix={item.suffix} format={item.format} duration={1800} />
+                  </div>
+                  <h3 className="mt-2 text-base font-bold text-secondary-800 tracking-tight sm:text-lg">
+                    {t(item.label)}
+                  </h3>
+                  <p className="mt-1 text-xs text-ink-soft leading-relaxed">
+                    {t(item.sub)}
+                  </p>
+                </div>
+
+                {/* Subtle bottom accent highlight bar on hover */}
+                <div className="absolute inset-x-0 bottom-0 h-1 overflow-hidden bg-cream-sand/40">
+                  <div className={`h-full w-full ${item.barColor} origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100`} />
+                </div>
+              </div>
+            </Reveal>
+          );
+        })}
       </div>
     </section>
   );
@@ -457,14 +704,40 @@ function Journey() {
 function Enquiry({ product, setProduct }) {
   const { t, tx, lang } = useLang();
   const [f, setF] = useState({ name: "", company: "", phone: "", email: "", ctype: "", message: "" });
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    const msg =
-      `*New Business Enquiry - Jayamangala Agro Foods*\n\n*Name:* ${f.name.trim()}\n*Company / Business:* ${f.company.trim() || "Not provided"}\n` +
-      `*Phone:* ${f.phone.trim()}\n*Email:* ${f.email.trim() || "Not provided"}\n*Customer Type:* ${f.ctype}\n*Product / Enquiry:* ${product}\n*Message:*\n${f.message.trim() || "No message provided"}`;
-    window.open(`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+    if (!/^\d{10}$/.test(f.phone.replace(/[\s\-()]/g, ""))) {
+      toast.error(lang === "ta" ? "சரியான 10 இலக்க தொலைபேசி எண் தேவை" : "Enter a valid 10-digit phone number");
+      return;
+    }
+    setBusy(true);
+    try {
+      // 1. Save to database first
+      await LeadAPI.submit({
+        name: f.name.trim(),
+        company: f.company.trim(),
+        phone: f.phone.trim(),
+        email: f.email.trim(),
+        productInterest: product ? [product] : [],
+        message: f.message.trim(),
+        source: "homepage_enquiry",
+      });
+      track("homepage_enquiry", { productInterest: product ? [product] : [] });
+      setDone(true);
+      // 2. Then open WhatsApp (optional — after persistence is confirmed)
+      const msg =
+        `*New Business Enquiry - Jayamangala Agro Foods*\n\n*Name:* ${f.name.trim()}\n*Company / Business:* ${f.company.trim() || "Not provided"}\n` +
+        `*Phone:* ${f.phone.trim()}\n*Email:* ${f.email.trim() || "Not provided"}\n*Customer Type:* ${f.ctype}\n*Product / Enquiry:* ${product}\n*Message:*\n${f.message.trim() || "No message provided"}`;
+      window.open(`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error(errMsg(err) || (lang === "ta" ? "சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்." : "Submission failed. Please try again."));
+    } finally {
+      setBusy(false);
+    }
   };
 
   const detail = (Icon, label, value, href) => (
@@ -504,18 +777,37 @@ function Enquiry({ product, setProduct }) {
         <Reveal variant="from-right" className="min-w-0 p-5 sm:p-10">
           <h3 className="font-display text-2xl font-bold text-secondary-700">{t("enq.formTitle")}</h3>
           <p className="mt-1 text-sm text-ink-soft">{t("enq.formSub")}</p>
-          <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div><label className="label">{lang === "ta" ? "பெயர் *" : "Name *"}</label><input className="input" required value={f.name} onChange={set("name")} placeholder={lang === "ta" ? "உங்கள் பெயர்" : "Your Name"} /></div>
-            <div><label className="label">{lang === "ta" ? "நிறுவனம் / வணிகம்" : "Company / Business"}</label><input className="input" value={f.company} onChange={set("company")} placeholder={lang === "ta" ? "நிறுவனத்தின் பெயர்" : "Company Name"} /></div>
-            <div><label className="label">{lang === "ta" ? "தொலைபேசி *" : "Phone *"}</label><input className="input" type="tel" required value={f.phone} onChange={set("phone")} placeholder={lang === "ta" ? "உங்கள் தொலைபேசி எண்" : "Your Phone Number"} /></div>
-            <div><label className="label">{lang === "ta" ? "மின்னஞ்சல்" : "Email"}</label><input className="input" type="email" value={f.email} onChange={set("email")} placeholder={lang === "ta" ? "உங்கள் மின்னஞ்சல்" : "Your Email"} /></div>
-            <div><label className="label">{lang === "ta" ? "வாடிக்கையாளர் வகை *" : "Customer Type *"}</label>
-              <select className="input" required value={f.ctype} onChange={set("ctype")}><option value="">{lang === "ta" ? "வாடிக்கையாளர் வகையைத் தேர்ந்தெடுக்கவும்" : "Select Customer Type"}</option>{CUSTOMER_TYPES.map((x) => <option key={x.en} value={x.en}>{tx(x)}</option>)}</select></div>
-            <div><label className="label">{lang === "ta" ? "பொருள் / விசாரணை *" : "Product / Enquiry *"}</label>
-              <select className="input" required value={product} onChange={(e) => setProduct(e.target.value)}><option value="">{lang === "ta" ? "விசாரணையைத் தேர்ந்தெடுக்கவும்" : "Select Enquiry"}</option>{ENQUIRY_TYPES.map((x) => <option key={x.en} value={x.en}>{tx(x)}</option>)}</select></div>
-            <div className="sm:col-span-2"><label className="label">{lang === "ta" ? "செய்தி" : "Message"}</label><textarea className="input min-h-[110px]" value={f.message} onChange={set("message")} placeholder={lang === "ta" ? "நாங்கள் உங்களுக்கு எவ்வாறு உதவலாம் என்பதைத் தெரிவிக்கவும்..." : "Tell us how we can help..."} /></div>
-            <button className="btn-primary py-3.5 sm:col-span-2"><Send className="h-4 w-4" /> {t("enq.send")}</button>
-          </form>
+          {done ? (
+            <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl bg-secondary-50 p-8 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary-700 text-white">
+                <Check className="h-7 w-7" />
+              </span>
+              <p className="font-display text-xl font-bold text-secondary-700">
+                {lang === "ta" ? "நன்றி! உங்கள் விசாரணை பதிவு செய்யப்பட்டது." : "Thank you! Your enquiry has been received."}
+              </p>
+              <p className="text-sm text-ink-soft">
+                {lang === "ta" ? "நாங்கள் விரைவில் தொடர்பு கொள்வோம்." : "We'll get back to you shortly."}
+              </p>
+              <button className="btn-outline mt-2" onClick={() => { setDone(false); setF({ name: "", company: "", phone: "", email: "", ctype: "", message: "" }); setProduct(""); }}>
+                {lang === "ta" ? "மற்றொரு விசாரணை" : "Submit another enquiry"}
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={submit} className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div><label className="label">{lang === "ta" ? "பெயர் *" : "Name *"}</label><input className="input" required maxLength={100} value={f.name} onChange={set("name")} placeholder={lang === "ta" ? "உங்கள் பெயர்" : "Your Name"} /></div>
+              <div><label className="label">{lang === "ta" ? "நிறுவனம் / வணிகம்" : "Company / Business"}</label><input className="input" maxLength={150} value={f.company} onChange={set("company")} placeholder={lang === "ta" ? "நிறுவனத்தின் பெயர்" : "Company Name"} /></div>
+              <div><label className="label">{lang === "ta" ? "தொலைபேசி *" : "Phone *"}</label><input className="input" type="tel" required inputMode="numeric" maxLength={15} value={f.phone} onChange={set("phone")} placeholder={lang === "ta" ? "உங்கள் தொலைபேசி எண்" : "Your Phone Number"} /></div>
+              <div><label className="label">{lang === "ta" ? "மின்னஞ்சல்" : "Email"}</label><input className="input" type="email" maxLength={200} value={f.email} onChange={set("email")} placeholder={lang === "ta" ? "உங்கள் மின்னஞ்சல்" : "Your Email"} /></div>
+              <div><label className="label">{lang === "ta" ? "வாடிக்கையாளர் வகை *" : "Customer Type *"}</label>
+                <select className="input" required value={f.ctype} onChange={set("ctype")}><option value="">{lang === "ta" ? "வாடிக்கையாளர் வகையைத் தேர்ந்தெடுக்கவும்" : "Select Customer Type"}</option>{CUSTOMER_TYPES.map((x) => <option key={x.en} value={x.en}>{tx(x)}</option>)}</select></div>
+              <div><label className="label">{lang === "ta" ? "பொருள் / விசாரணை *" : "Product / Enquiry *"}</label>
+                <select className="input" required value={product} onChange={(e) => setProduct(e.target.value)}><option value="">{lang === "ta" ? "விசாரணையைத் தேர்ந்தெடுக்கவும்" : "Select Enquiry"}</option>{ENQUIRY_TYPES.map((x) => <option key={x.en} value={x.en}>{tx(x)}</option>)}</select></div>
+              <div className="sm:col-span-2"><label className="label">{lang === "ta" ? "செய்தி" : "Message"}</label><textarea className="input min-h-[110px]" maxLength={2000} value={f.message} onChange={set("message")} placeholder={lang === "ta" ? "நாங்கள் உங்களுக்கு எவ்வாறு உதவலாம் என்பதைத் தெரிவிக்கவும்..." : "Tell us how we can help..."} /></div>
+              <button className="btn-primary py-3.5 sm:col-span-2" disabled={busy}>
+                {busy ? <><Spinner className="h-4 w-4 !text-white" />{lang === "ta" ? "அனுப்புகிறது…" : "Sending…"}</> : <><Send className="h-4 w-4" /> {t("enq.send")}</>}
+              </button>
+            </form>
+          )}
         </Reveal>
       </div>
     </section>
@@ -526,6 +818,10 @@ function Enquiry({ product, setProduct }) {
 export default function Home() {
   const [data, setData] = useState({ brands: [], categories: [], products: [] });
   const [enquiry, setEnquiry] = useState("");
+  usePageMeta(
+    "Jayamangala Agro Foods | Quality Edible Oils & Food Products – Kumbakonam",
+    "Buy quality edible oils, milk products and everyday food essentials online. Serving Kumbakonam and Tamil Nadu since 1995. Retail & wholesale available."
+  );
 
   useEffect(() => {
     void (async () => {
@@ -542,16 +838,20 @@ export default function Home() {
 
   return (
     <div className="w-full max-w-[100vw] overflow-x-clip">
+      <AnnouncementBar />
       <Hero />
+      <TrustStrip />
+      <Shop data={data} />
+      <HowToOrder />
       <Bento />
       <Stats />
       <Story />
       <Ranges onEnquire={setEnquiry} />
-      <Shop data={data} />
       <BrandMarquee brands={data.brands} />
       <Why />
       <Quality />
       <Journey />
+      <Testimonials />
       <Enquiry product={enquiry} setProduct={setEnquiry} />
     </div>
   );

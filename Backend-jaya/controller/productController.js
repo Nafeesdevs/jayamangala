@@ -77,7 +77,11 @@ export const getallproduct = async (req, res) => {
         if (brand) query.brand = brand;
         if (status) query.status = status;
 
-        let finder = Product.find(query).populate('category').populate('brand').sort({ createdAt: -1 });
+        let finder = Product.find(query)
+            .populate('category', 'name image status')
+            .populate('brand', 'name image status')
+            .sort({ createdAt: -1 })
+            .lean();
 
         // pagination is optional
         if (page || limit) {
@@ -86,8 +90,13 @@ export const getallproduct = async (req, res) => {
             finder = finder.skip((p - 1) * l).limit(l);
         }
 
-        const products = await finder;
-        const total = await Product.countDocuments(query);
+        const [products, total] = await Promise.all([
+            finder,
+            Product.countDocuments(query)
+        ]);
+
+        // Add Cache-Control header for fast response caching (30s)
+        res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
 
         res.status(200).json({
             success: true,

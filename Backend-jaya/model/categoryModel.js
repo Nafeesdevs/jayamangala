@@ -7,6 +7,7 @@ const categorySchema = new mongoose.Schema({
   status: {
     type: String,
     default: "Active",
+    index: true,
   },
   createdAt: {
     type: Date,

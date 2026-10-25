@@ -8,6 +8,7 @@ const brandSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "Active",
+    index: true,
   },
 }, { timestamps: true })
 

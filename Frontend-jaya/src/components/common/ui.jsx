@@ -4,13 +4,54 @@ import { statusStyle } from "../../utils/format";
 import { useLang } from "../../context/LangContext";
 
 export function Spinner({ className = "" }) {
-  return <Loader2 className={`animate-spin text-primary-600 ${className}`} />;
+  return (
+    <div className={`relative inline-flex items-center justify-center ${className}`}>
+      <span className="h-full w-full rounded-full border-2 border-white/30 border-t-white animate-spin" />
+    </div>
+  );
 }
 
-export function PageLoader() {
+export function PageLoader({ label = "Loading..." }) {
+  const { lang } = useLang();
   return (
-    <div className="flex min-h-[40vh] items-center justify-center">
-      <Spinner className="h-8 w-8" />
+    <div className="flex min-h-[45vh] flex-col items-center justify-center gap-3.5 py-12">
+      {/* Brand animated pulse ring with oil drop icon */}
+      <div className="relative flex h-14 w-14 items-center justify-center">
+        <span className="absolute h-full w-full animate-ping rounded-full bg-primary-500/20 duration-1000" />
+        <span className="absolute h-12 w-12 rounded-full border-2 border-primary-200 border-t-primary-600 animate-spin" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-600 shadow-md">
+          <svg className="h-4 w-4 text-white animate-pulse" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+          </svg>
+        </div>
+      </div>
+      <p className="font-display text-sm font-semibold tracking-wide text-secondary-700 animate-pulse">
+        {lang === "ta" ? "தயவுசெய்து காத்திருக்கவும்..." : (label || "Loading pure products...")}
+      </p>
+    </div>
+  );
+}
+
+/* Skeleton placeholder for product cards during fast loading */
+export function ProductGridSkeleton({ count = 8 }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="overflow-hidden rounded-[2rem_.8rem_2rem_.8rem] border border-cream-sand/80 bg-white p-3 shadow-card animate-pulse"
+        >
+          <div className="aspect-square w-full rounded-[1.4rem] bg-cream-deep/60" />
+          <div className="mt-3 space-y-2">
+            <div className="h-4 w-3/4 rounded-md bg-cream-deep/80" />
+            <div className="h-3 w-1/2 rounded-md bg-cream-deep/60" />
+            <div className="mt-3 flex items-center justify-between pt-1">
+              <div className="h-5 w-16 rounded-md bg-cream-deep/80" />
+              <div className="h-8 w-8 rounded-full bg-cream-deep/80" />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

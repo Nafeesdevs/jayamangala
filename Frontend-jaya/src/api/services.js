@@ -79,3 +79,29 @@ export const UserAPI = {
   remove: (id) => data(api.delete(`/user/${id}`)),
   orders: (id) => data(api.get(`/orders/user/${id}`)),
 };
+
+export const LeadAPI = {
+  // Public — submit any type of lead (wholesale, homepage, contact)
+  submit: (b) => data(api.post("/lead", b)),
+  // Convenience: contact form always uses source=contact_form
+  contact: (b) => data(api.post("/lead", { ...b, source: "contact_form" })),
+  // Admin
+  list: (params) => data(api.get("/leads", { params })),
+  stats: () => data(api.get("/leads/stats")),
+  get: (id) => data(api.get(`/lead/${id}`)),
+  setStatus: (id, status) => data(api.put(`/lead/status/${id}`, { status })),
+  updateFollowUp: (id, b) => data(api.put(`/lead/follow-up/${id}`, b)),
+  addNote: (id, text) => data(api.post(`/lead/note/${id}`, { text })),
+  remove: (id) => data(api.delete(`/lead/${id}`)),
+};
+
+export const QuotationAPI = {
+  create: (b) => data(api.post("/quotation", b)),
+  forLead: (leadId) => data(api.get(`/quotations/lead/${leadId}`)),
+  get: (id) => data(api.get(`/quotation/${id}`)),
+  setStatus: (id, status) => data(api.put(`/quotation/status/${id}`, { status })),
+};
+
+export const AnalyticsAPI = {
+  summary: () => data(api.get("/analytics/summary")),
+};

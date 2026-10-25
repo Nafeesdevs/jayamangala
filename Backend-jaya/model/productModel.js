@@ -6,16 +6,19 @@ const productSchema = new mongoose.Schema({
     oldprice: { type: Number, default: 0 },
     category: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category'
+        ref: 'Category',
+        index: true
     },
     brand: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Brand'
+        ref: 'Brand',
+        index: true
     },
     description: String,
     status: {
         type: String,
-        default: "Active"
+        default: "Active",
+        index: true
     },
     stock: {
         type: Number,
@@ -34,6 +37,9 @@ const productSchema = new mongoose.Schema({
     productimage: String,
     imagePublicId: String, // cloudinary public id
 }, { timestamps: true })
+
+productSchema.index({ status: 1, createdAt: -1 });
+productSchema.index({ status: 1, price: 1 });
 
 const Product = mongoose.model("Product", productSchema)
 export default Product;

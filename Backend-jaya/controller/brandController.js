@@ -29,7 +29,8 @@ export const createbrand = async (req, res) => {
 
 export const getallbrand = async (req, res) => {
     try {
-        const brands = await Brand.find().sort({ createdAt: -1 });
+        const brands = await Brand.find().sort({ createdAt: -1 }).lean();
+        res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
         res.status(200).json({ success: true, count: brands.length, data: brands });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

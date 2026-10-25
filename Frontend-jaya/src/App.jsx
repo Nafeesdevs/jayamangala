@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { About, Contact, Terms, Privacy, NotFound } from "./pages/Static";
+import Wholesale from "./pages/Wholesale";
 
 import Dashboard from "./pages/admin/Dashboard";
 import Categories from "./pages/admin/Categories";
@@ -23,6 +24,7 @@ import AdminProducts from "./pages/admin/Products";
 import AdminOrders from "./pages/admin/Orders";
 import Customers from "./pages/admin/Customers";
 import AdminProfile from "./pages/admin/AdminProfile";
+import AdminLeads from "./pages/admin/Leads";
 
 export default function App() {
   return (
@@ -38,6 +40,7 @@ export default function App() {
         <Route path="contact" element={<Contact />} />
         <Route path="terms" element={<Terms />} />
         <Route path="privacy" element={<Privacy />} />
+        <Route path="wholesale" element={<Wholesale />} />
 
         <Route path="cart" element={<CustomerOnly><Cart /></CustomerOnly>} />
         <Route path="wishlist" element={<CustomerOnly><Wishlist /></CustomerOnly>} />
@@ -56,6 +59,7 @@ export default function App() {
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="customers" element={<Customers />} />
+        <Route path="leads" element={<AdminLeads />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Route>

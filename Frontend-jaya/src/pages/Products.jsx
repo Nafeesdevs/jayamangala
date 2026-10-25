@@ -4,19 +4,27 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { BrandAPI, CategoryAPI, ProductAPI } from "../api/services";
 import { useLang } from "../context/LangContext";
 import ProductCard from "../components/common/ProductCard";
-import { EmptyState, PageLoader, Pagination } from "../components/common/ui";
+import { EmptyState, ProductGridSkeleton, Pagination } from "../components/common/ui";
 import { discountPct } from "../utils/format";
+import { usePageMeta } from "../hooks/usePageMeta";
+
+// In-memory instant cache so returning to /products takes 0 milliseconds
+let productsCache = null;
+let categoriesCache = null;
+let brandsCache = null;
 
 const PER_PAGE = 12;
 
 export default function Products() {
   const { t } = useLang();
+  usePageMeta("Shop All Products", "Browse all edible oils, milk products and food essentials from Jayamangala Agro Foods.");
   const [sp, setSp] = useSearchParams();
-  const [all, setAll] = useState(null);
-  const [cats, setCats] = useState([]);
-  const [brands, setBrands] = useState([]);
+  const [all, setAll] = useState(productsCache);
+  const [cats, setCats] = useState(categoriesCache || []);
+  const [brands, setBrands] = useState(brandsCache || []);
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(!productsCache);
 
   const q = sp.get("q") || "";
   const category = sp.get("category") || "";
@@ -34,14 +42,34 @@ export default function Products() {
   };
 
   useEffect(() => {
+    let active = true;
     void (async () => {
       try {
-        const [p, c, b] = await Promise.all([ProductAPI.list({ status: "Active" }), CategoryAPI.list(), BrandAPI.list()]);
-        setAll(p.data || []);
-        setCats((c.data || []).filter((x) => x.status !== "Inactive"));
-        setBrands((b.data || []).filter((x) => x.status !== "Inactive"));
-      } catch { setAll([]); }
+        const [p, c, b] = await Promise.all([
+          ProductAPI.list({ status: "Active" }),
+          CategoryAPI.list(),
+          BrandAPI.list()
+        ]);
+        if (!active) return;
+        const validProducts = p.data || [];
+        const validCats = (c.data || []).filter((x) => x.status !== "Inactive");
+        const validBrands = (b.data || []).filter((x) => x.status !== "Inactive");
+
+        // Save to cache
+        productsCache = validProducts;
+        categoriesCache = validCats;
+        brandsCache = validBrands;
+
+        setAll(validProducts);
+        setCats(validCats);
+        setBrands(validBrands);
+      } catch {
+        if (active && !all) setAll([]);
+      } finally {
+        if (active) setLoading(false);
+      }
     })();
+    return () => { active = false; };
   }, []);
 
   const list = useMemo(() => {
@@ -64,8 +92,6 @@ export default function Products() {
     }[sort];
     return [...r].sort(s);
   }, [all, q, category, brand, min, max, inStock, sort]);
-
-  if (!all) return <PageLoader />;
 
   const pages = Math.ceil(list.length / PER_PAGE);
   const view = list.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -144,7 +170,9 @@ export default function Products() {
           <div className="card animate-fade p-5 lg:sticky lg:top-24 lg:animate-none">{Filters}</div>
         </aside>
         <section className="min-w-0">
-          {view.length === 0 ? (
+          {loading && !all ? (
+            <ProductGridSkeleton count={8} />
+          ) : view.length === 0 ? (
             <EmptyState title={t("common.noResults")} action={hasFilters && <button className="btn-primary" onClick={() => setSp({})}>{t("common.clear")}</button>} />
           ) : (
             <>

@@ -1,4 +1,27 @@
 // All marketing copy taken from the original Jayamangala HTML website.
+
+// ── Testimonials ──────────────────────────────────────────────────────────────
+// Add real customer testimonials here when ready. Leave empty to hide the section.
+// Format: { name, role (en/ta), quote (en/ta), initials }
+export const TESTIMONIALS = [
+  // Example (uncomment and fill with real data):
+  // {
+  //   name: "Customer Name",
+  //   initials: "CN",
+  //   role: { en: "Retailer, Kumbakonam", ta: "சில்லறை விற்பனையாளர், கும்பகோணம்" },
+  //   quote: { en: "Excellent quality oils at great prices.", ta: "சிறந்த விலையில் தரமான எண்ணெய்கள்." },
+  // },
+];
+
+// ── Trust Indicators ──────────────────────────────────────────────────────────
+// Shown as a horizontal trust band below the hero section.
+export const TRUST_ITEMS = [
+  { key: "trust.gst",       icon: "BadgeCheck" },
+  { key: "trust.fssai",     icon: "ShieldCheck" },
+  { key: "trust.years",     icon: "Award"       },
+  { key: "trust.kumbakonam",icon: "MapPin"       },
+  { key: "trust.wholesale", icon: "Truck"        },
+];
 export const RANGES = [
   { id: "edible", no: "01", art: "oil",
     title: { en: "Edible Oils", ta: "சமையல் எண்ணெய்கள்" },

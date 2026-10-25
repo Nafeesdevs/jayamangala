@@ -35,7 +35,8 @@ export const createcategory = async (req, res) => {
 
 export const getallcategory = async (req, res) => {
     try {
-        const category = await Category.find().sort({ createdAt: -1 })
+        const category = await Category.find().sort({ createdAt: -1 }).lean()
+        res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
         res.status(200).json({
             success: true,
             message: "Sucessfully fetched",

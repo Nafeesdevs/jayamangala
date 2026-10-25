@@ -49,7 +49,13 @@ export default function Login() {
           </button>
         </div>
         <button className="btn-primary w-full py-3.5 text-base" disabled={busy}>
-          {busy ? <Spinner className="h-4 w-4 !text-white" /> : <>{t("nav.login")} <ArrowRight className="h-4 w-4" /></>}
+          {busy ? (
+            <span className="flex items-center gap-2">
+              <span className="font-semibold">{t("nav.login") || "Logging in..."}</span>
+            </span>
+          ) : (
+            <>{t("nav.login")} <ArrowRight className="h-4 w-4" /></>
+          )}
         </button>
       </form>
 

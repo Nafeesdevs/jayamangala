@@ -217,9 +217,15 @@ export const trackOrder = async (req, res) => {
             data: {
                 orderId: order.orderId,
                 status: order.status,
-                paymentStatus: order.payment.status,
+                paymentMethod: order.payment?.method,
+                paymentStatus: order.payment?.status,
                 deliveryDate: order.deliveryDate,
                 cancelReason: order.cancelReason,
+                items: order.items,
+                pricing: order.pricing,
+                shippingAddress: order.shippingAddress,
+                customerDetails: order.customerDetails,
+                createdAt: order.createdAt,
                 steps,
                 history: order.statusHistory,
             }

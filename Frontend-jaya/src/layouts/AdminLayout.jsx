@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet, Link, useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Layers, Tags, Package, ShoppingBag, Users, UserCircle, LogOut, Menu, X, Store, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Layers, Tags, Package, ShoppingBag, Users, UserCircle, LogOut, Menu, X, Store, CalendarDays, Briefcase } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import LangToggle from "../components/common/LangToggle";
 import { Sprig, Sparkle } from "../components/common/Doodles";
@@ -12,6 +12,7 @@ const items = [
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { to: "/admin/customers", label: "Customers", icon: Users },
+  { to: "/admin/leads", label: "Leads / CRM", icon: Briefcase },
   { to: "/admin/profile", label: "Profile", icon: UserCircle },
 ];
 
@@ -52,7 +53,14 @@ export default function AdminLayout() {
           <Store className="h-[18px] w-[18px]" /> View store
         </Link>
         <button
-          onClick={async () => { await logout(); nav("/login"); }}
+          type="button"
+          onClick={async () => {
+            try {
+              await logout();
+            } finally {
+              nav("/login");
+            }
+          }}
           className="flex w-full items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-primary-200 transition hover:translate-x-1 hover:bg-primary-600 hover:text-white"
         >
           <LogOut className="h-[18px] w-[18px]" /> Logout
@@ -65,9 +73,9 @@ export default function AdminLayout() {
     <div className="admin-bg min-h-screen">
       <aside className="fixed inset-y-0 left-0 hidden w-64 shadow-lift lg:block" style={{ borderRadius: "0 2.2rem 2.2rem 0 / 0 2.2rem 2.2rem 0", overflow: "hidden" }}>{Side}</aside>
       {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="animate-fade absolute inset-0 bg-secondary-900/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-[85%] max-w-[18rem] animate-slideInLeft overflow-hidden shadow-lift" style={{ borderRadius: "0 2rem 2rem 0" }}>{Side}</aside>
+        <div className="fixed inset-0 z-50 overflow-hidden lg:hidden">
+          <div className="animate-fade fixed inset-0 bg-secondary-900/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 w-full max-w-[18rem] animate-slideInLeft overflow-y-auto overflow-x-hidden shadow-lift" style={{ borderRadius: "0 2rem 2rem 0" }}>{Side}</aside>
         </div>
       )}
       <div className="min-w-0 lg:pl-64">

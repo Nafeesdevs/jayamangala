@@ -51,8 +51,14 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    try { await AuthAPI.logout(); } catch { /* ignore */ }
-    clear();
+    try {
+      await AuthAPI.logout();
+    } catch {
+      /* ignore API errors on logout */
+    } finally {
+      clear();
+      window.dispatchEvent(new Event("auth:logout"));
+    }
   };
 
   const updateUser = (u) => persist(u);

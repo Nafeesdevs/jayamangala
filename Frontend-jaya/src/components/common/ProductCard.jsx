@@ -54,6 +54,15 @@ export default function ProductCard({ product: p, index }) {
             {t("common.outOfStock")}
           </div>
         )}
+        {!out && p.stock <= 5 && (
+          <div className="absolute inset-x-2 bottom-2 flex items-center justify-center gap-1 rounded-full border border-amber-300 bg-amber-50/95 py-1 text-center text-[10px] sm:inset-x-3 sm:bottom-3 sm:py-1.5 sm:text-xs font-semibold text-amber-700 backdrop-blur">
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-500" />
+            </span>
+            {t("prod.only", { n: p.stock })}
+          </div>
+        )}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col px-1.5 pb-1.5 pt-3 sm:px-3 sm:pb-2 sm:pt-4">

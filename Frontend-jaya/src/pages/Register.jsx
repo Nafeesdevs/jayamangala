@@ -52,7 +52,13 @@ export default function Register() {
           <Input id="confirm" icon={ShieldCheck} label={t("auth.confirm")} type="password" value={f.confirm} onChange={set("confirm")} required />
         </div>
         <button className="btn-primary mt-2 w-full py-3.5 text-base" disabled={busy}>
-          {busy ? <Spinner className="h-4 w-4 !text-white" /> : <>{t("nav.register")} <ArrowRight className="h-4 w-4" /></>}
+          {busy ? (
+            <span className="flex items-center gap-2">
+              <span className="font-semibold">{t("nav.register") || "Creating account..."}</span>
+            </span>
+          ) : (
+            <>{t("nav.register")} <ArrowRight className="h-4 w-4" /></>
+          )}
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-ink-soft">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { CheckCircle2, ImagePlus, QrCode, Wallet, Copy } from "lucide-react";
+import { CheckCircle2, ImagePlus, MessageCircle, QrCode, Wallet, Copy } from "lucide-react";
 import { OrderAPI, PaymentAPI } from "../api/services";
 import { errMsg } from "../api/client";
 import { useShop } from "../context/ShopContext";
@@ -9,6 +9,8 @@ import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
 import { Field, SafeImg, Spinner } from "../components/common/ui";
 import { money } from "../utils/format";
+import { SITE } from "../config/site";
+import { track } from "../hooks/useAnalytics";
 
 export default function Checkout() {
   const { cart, refresh } = useShop();
@@ -35,6 +37,15 @@ export default function Checkout() {
 
   useEffect(() => {
     void PaymentAPI.qr().then((r) => setQr(r.data)).catch(() => {});
+    // Track checkout start (fire-and-forget)
+    track("checkout_start");
+
+    return () => {
+      // If user unmounts checkout without completing the order, log drop-off
+      if (!uploaded.current?.completed) {
+        track("checkout_dropoff");
+      }
+    };
   }, []);
 
   const delivery = Number(qr?.deliveryCharge ?? import.meta.env.VITE_DELIVERY_CHARGE ?? 0);
@@ -51,7 +62,11 @@ export default function Checkout() {
     setPreview(URL.createObjectURL(file));
   };
 
-  if (done)
+  if (done) {
+    const waOrderMsg = encodeURIComponent(
+      `Hi Jayamangala Agro Foods! I just placed Order *${done.orderId}*. Please confirm my order. Thank you!`
+    );
+    const waOrderLink = `https://wa.me/${SITE.whatsapp}?text=${waOrderMsg}`;
     return (
       <div className="container-x py-16">
         <div className="card mx-auto max-w-md p-6 text-center sm:p-8">
@@ -60,13 +75,25 @@ export default function Checkout() {
           <p className="mt-2 text-sm text-ink-soft">{t("co.successD")}</p>
           <p className="mt-4 rounded-lg bg-ink-wash py-2 font-mono text-sm font-semibold">{done.orderId}</p>
           {done.payment?.method === "QR" && <p className="mt-3 text-xs text-ink-soft">{t("co.verifyNote")}</p>}
-          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          {/* WhatsApp order confirmation */}
+          <a
+            href={waOrderLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-105 active:scale-95"
+            onClick={() => track("wa_order_confirm", { orderId: done.orderId })}
+          >
+            <MessageCircle className="h-5 w-5" />
+            {t("wa.confirmOrder")}
+          </a>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/orders" className="btn-primary">{t("co.viewOrder")}</Link>
             <Link to={`/track/${done.orderId}`} className="btn-outline">{t("ord.track")}</Link>
           </div>
         </div>
       </div>
     );
+  }
 
   if (!items.length) return <Navigate to="/cart" replace />;
 
@@ -91,7 +118,11 @@ export default function Checkout() {
         body.paymentId = uploaded.current.paymentId;
       }
       const res = await OrderAPI.create(body);
+      if (uploaded.current) uploaded.current.completed = true;
+      else uploaded.current = { completed: true };
       setDone(res.data);
+      // Track successful order placement (fire-and-forget)
+      track("order_placed", { orderId: res.data?.orderId });
       refresh();
     } catch (err) { toast.error(errMsg(err)); } finally { setBusy(false); }
   };

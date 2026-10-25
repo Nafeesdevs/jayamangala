@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from "express-rate-limit";
 import {
     createuser, loginUser, Logoutuser,
     getMyProfile, updateMyProfile, getMyOrderTotal,
@@ -7,9 +8,18 @@ import {
 import { verifyUser, isAdmin } from '../helper/userAuth.js';
 const router = express.Router();
 
+// Rate limiting for public login & registration to block brute-force attempts
+const authRateLimit = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 mins
+    max: 15, // max 15 requests per 15 min per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many authentication attempts. Please try again after 15 minutes." }
+});
+
 // auth
-router.route("/register").post(createuser)
-router.route("/login").post(loginUser)
+router.route("/register").post(authRateLimit, createuser)
+router.route("/login").post(authRateLimit, loginUser)
 router.route("/logout").get(Logoutuser)
 
 // profile (logged-in user)
