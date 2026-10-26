@@ -48,14 +48,14 @@ const corsOptions = {
 
     // In production, allow authorized Vercel preview domains if enabled
     if (isProd && process.env.ALLOW_VERCEL_PREVIEWS === "true") {
-      if (/^https://[a-zA-Z0-9_-]+.vercel.app$/.test(origin)) {
+      if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(origin)) {
         return callback(null, true);
       }
     }
 
     // In local development mode only, allow localhost variants
     if (!isProd) {
-      if (/^http://(localhost|127.0.0.1)(:d+)?$/.test(origin)) {
+      if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
         return callback(null, true);
       }
     }
