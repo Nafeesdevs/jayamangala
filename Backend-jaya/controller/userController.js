@@ -1,13 +1,21 @@
 import mongoose from "mongoose";
 import User from "../model/userModel.js";
 import Order from "../model/orderModel.js";
-import { sendToken } from "../helper/jwtToken.js";
+import { sendToken, getCookieOptions } from "../helper/jwtToken.js";
 
 // ---------------------------------------------------------------
 // SEED  (admin + demo user) - called from server.js after DB connect
 // ---------------------------------------------------------------
 export const seedDefaultUsers = async () => {
     try {
+        const isProd = process.env.NODE_ENV === "production";
+        const allowDemo = process.env.ENABLE_DEMO_SEED === "true";
+
+        // Never seed generic demo accounts in production unless explicitly enabled
+        if (isProd && !allowDemo) {
+            return;
+        }
+
         const adminPhone = process.env.ADMIN_PHONE;
         if (adminPhone && !(await User.findOne({ phoneno: adminPhone }))) {
             await User.create({
@@ -119,7 +127,9 @@ export const loginUser = async (req, res) => {
 };
 
 export const Logoutuser = async (req, res) => {
-    res.cookie("token", null, { expires: new Date(Date.now()), httpOnly: true });
+    const options = getCookieOptions();
+    options.expires = new Date(0);
+    res.cookie("token", "", options);
     res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 

@@ -15,30 +15,58 @@ import quotation from "./route/quotationRoute.js"
 import analytics from "./route/analyticsRoute.js"
 
 const app = express();
+// Behind Render/Vercel reverse proxies, trust the proxy header so express-rate-limit and IP hashing work correctly
+app.set("trust proxy", 1);
 app.use(cookieParser());
 
 // ── CORS ────────────────────────────────────────────────────────────────────
-// Production: restrict to the Vercel deployment domain only.
-// In development (NODE_ENV !== "production") allow all origins for local work.
+// Production: Strict origin allowlist with regex support for preview deployments.
+const isProd = process.env.NODE_ENV === "production";
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
 
-// Always allow localhost for local development
-const DEV_ORIGINS = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"];
+// Authorized development origins
+const DEV_ORIGINS = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:5173",
+  "http://localhost:4173",
+];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (server-to-server, curl, Postman)
+    // Allow non-browser requests (server-to-server, curl, health checks)
     if (!origin) return callback(null, true);
+
     const allowed = [...DEV_ORIGINS, ...ALLOWED_ORIGINS];
-    if (allowed.includes(origin) || process.env.NODE_ENV !== "production") {
+
+    if (allowed.includes(origin)) {
       return callback(null, true);
     }
+
+    // In production, allow authorized Vercel preview domains if enabled
+    if (isProd && process.env.ALLOW_VERCEL_PREVIEWS === "true") {
+      if (/^https://[a-zA-Z0-9_-]+.vercel.app$/.test(origin)) {
+        return callback(null, true);
+      }
+    }
+
+    // In local development mode only, allow localhost variants
+    if (!isProd) {
+      if (/^http://(localhost|127.0.0.1)(:d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+    }
+
     callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  exposedHeaders: ["Set-Cookie"],
+  maxAge: 86400, // 24 hours preflight cache
 };
 
 app.use(cors(corsOptions));

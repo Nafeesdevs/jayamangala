@@ -85,19 +85,35 @@ export function Modal({ open, onClose, title, children, wide = false, footer }) 
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="animate-fade fixed inset-0 z-50 flex items-end justify-center bg-secondary-900/55 p-0 backdrop-blur-sm sm:items-center sm:p-4" onMouseDown={onClose}>
+    <div className="animate-fade fixed inset-0 z-50 flex items-end justify-center bg-secondary-900/60 p-0 backdrop-blur-md sm:items-center sm:p-4" onMouseDown={onClose}>
       <div
-        className={`animate-pop flex max-h-[92vh] max-h-[92dvh] w-full min-w-0 flex-col rounded-t-[2rem] bg-[#fdfbf7] shadow-lift sm:rounded-[2.2rem_.8rem_2.2rem_.8rem] ${wide ? "sm:max-w-3xl" : "sm:max-w-lg"}`}
+        className={`animate-pop relative flex max-h-[92vh] max-h-[92dvh] w-full min-w-0 flex-col overflow-hidden rounded-t-[2.2rem] border border-cream-sand bg-[#fdfbf7] shadow-lift sm:rounded-[2.4rem_.9rem_2.4rem_.9rem] ${wide ? "sm:max-w-3xl" : "sm:max-w-lg"}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="no-print flex items-center justify-between gap-3 border-b border-cream-sand px-4 py-3.5 sm:px-6 sm:py-4">
-          <h3 className="min-w-0 truncate font-display text-lg font-bold text-secondary-700 sm:text-xl">{title}</h3>
-          <button onClick={onClose} className="shrink-0 rounded-full p-1.5 text-ink-soft transition hover:rotate-90 hover:bg-primary-50 hover:text-primary-600" aria-label="Close">
-            <X className="h-5 w-5" />
+        {/* Soft colorful ambient glow effects */}
+        <span className="pointer-events-none absolute -right-16 -top-16 -z-0 h-48 w-48 rounded-full bg-primary-200/50 blur-3xl" />
+        <span className="pointer-events-none absolute -bottom-16 -left-16 -z-0 h-52 w-52 rounded-full bg-gold-300/35 blur-3xl" />
+
+        {/* Top header bar */}
+        <div className="no-print relative z-10 flex items-center justify-between gap-3 border-b border-cream-sand/80 bg-gradient-to-r from-cream-deep/70 via-white/80 to-primary-50/50 px-4 py-4 sm:px-6 sm:py-4.5 backdrop-blur-sm">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="h-2 w-2 rounded-full bg-primary-600 animate-pulse" />
+            <h3 className="min-w-0 truncate font-display text-lg font-bold text-secondary-800 sm:text-xl">{title}</h3>
+          </div>
+          <button onClick={onClose} className="shrink-0 rounded-full border border-cream-sand/60 bg-white/90 p-2 text-ink-soft shadow-sm transition-all duration-200 hover:rotate-90 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600" aria-label="Close">
+            <X className="h-4.5 w-4.5" />
           </button>
         </div>
-        <div className="min-w-0 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">{children}</div>
-        {footer && <div className="no-print flex flex-wrap justify-end gap-2 border-t border-cream-sand px-4 py-3.5 sm:px-6">{footer}</div>}
+
+        {/* Modal body */}
+        <div className="relative z-10 min-w-0 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-6">{children}</div>
+
+        {/* Modal footer */}
+        {footer && (
+          <div className="no-print relative z-10 flex flex-wrap justify-end gap-2.5 border-t border-cream-sand/80 bg-gradient-to-r from-cream/90 via-cream-deep/50 to-cream/90 px-4 py-3.5 sm:px-6 sm:py-4">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

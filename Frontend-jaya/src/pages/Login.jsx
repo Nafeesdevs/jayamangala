@@ -42,7 +42,7 @@ export default function Login() {
         </div>
         <div className="fi">
           <Lock className="ico" />
-          <input id="pw" placeholder=" " type={show ? "text" : "password"} value={pw} onChange={(e) => setPw(e.target.value)} required className="pr-11" />
+          <input id="pw" placeholder=" " type={show ? "text" : "password"} value={pw} onChange={(e) => setPw(e.target.value)} required className="!pr-12" />
           <label htmlFor="pw">{t("auth.password")}</label>
           <button type="button" onClick={() => setShow(!show)} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-faint transition hover:text-primary-600" aria-label="Show password">
             {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -63,7 +63,7 @@ export default function Login() {
         {t("auth.noAccount")} <Link to="/register" className="font-semibold text-primary-600 hover:underline">{t("nav.register")}</Link>
       </p>
 
-      {env.VITE_SHOW_DEMO === "true" && (
+      {import.meta.env.DEV && env.VITE_SHOW_DEMO === "true" && (
         <div className="mt-6 rounded-2xl border border-gold-400/50 bg-gold-300/20 p-4">
           <p className="mb-3 text-xs font-semibold">{t("auth.demo")}</p>
           <div className="flex flex-wrap gap-2">

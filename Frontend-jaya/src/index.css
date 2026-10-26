@@ -112,7 +112,30 @@
   .btn-sm { @apply px-3.5 py-1.5 text-xs; }
 
   /* ─── Forms ─── */
-  .input { @apply w-full rounded-2xl border border-cream-sand bg-white/90 px-3.5 py-2.5 text-sm placeholder:text-ink-faint transition focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-100; }
+  .input { @apply w-full rounded-2xl border border-cream-sand bg-white/95 px-4 py-2.5 text-sm font-medium text-secondary-800 placeholder:text-ink-faint shadow-sm transition-all duration-200 hover:border-primary-300 focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-100; }
+  select.input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a31c1e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem 1rem;
+    padding-right: 2.5rem;
+    cursor: pointer;
+  }
+  select.input option {
+    background-color: #fdfbf7;
+    color: #183a2b;
+    font-weight: 500;
+    padding: 10px 14px;
+  }
+  select.input option:checked {
+    background: linear-gradient(0deg, #a31c1e 0%, #a31c1e 100%);
+    background-color: #a31c1e !important;
+    color: #ffffff !important;
+    font-weight: 700;
+  }
   .label { @apply mb-1.5 block text-sm font-semibold text-secondary-700; }
 
   /* ─── Cards: "leaf" shape (two big corners, two small) ─── */
@@ -248,10 +271,10 @@
 
 /* ─── Auth floating input ─── */
 .fi { position: relative; }
-.fi input { @apply w-full rounded-2xl border border-cream-sand bg-white/90 px-11 pb-2 pt-6 text-sm transition focus:border-primary-600 focus:outline-none focus:ring-4 focus:ring-primary-100; }
-.fi label { @apply pointer-events-none absolute left-11 top-1/2 -translate-y-1/2 text-sm text-ink-faint transition-all duration-200; }
-.fi input:focus + label, .fi input:not(:placeholder-shown) + label { top: 13px; transform: none; font-size: 11px; font-weight: 600; @apply text-primary-600; }
-.fi .ico { @apply pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint transition; }
+.fi input { @apply w-full rounded-2xl border border-cream-sand bg-white/90 pl-12 pr-4 pt-6 pb-2.5 text-sm transition focus:border-primary-600 focus:outline-none focus:ring-4 focus:ring-primary-100; min-height: 3.75rem; }
+.fi label { @apply pointer-events-none absolute left-12 top-1/2 -translate-y-1/2 text-sm text-ink-faint transition-all duration-200; }
+.fi input:focus + label, .fi input:not(:placeholder-shown) + label { top: 11px; transform: none; font-size: 11px; font-weight: 600; @apply text-primary-600; }
+.fi .ico { @apply pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-faint transition; }
 .fi:focus-within .ico { @apply text-primary-600; }
 
 /* ─── Admin ─── */

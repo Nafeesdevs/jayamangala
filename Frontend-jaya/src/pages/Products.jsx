@@ -103,7 +103,7 @@ export default function Products() {
   const Filters = (
     <div className="space-y-7">
       <div>
-        <h4 className="mb-3 text-sm font-semibold">{t("common.category")}</h4>
+        <h4 className="mb-3 text-lg font-semibold">{t("common.category")}</h4>
         <div className="flex flex-wrap gap-2">
           <button className={chip(!category)} onClick={() => setParam("category", "")}>{t("common.all")}</button>
           {cats.map((c) => (

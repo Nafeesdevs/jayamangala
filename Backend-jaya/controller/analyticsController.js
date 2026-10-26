@@ -207,23 +207,22 @@ export const getSummary = async (req, res) => {
     const uniqueCartSessions = distinctCartAddSessions.filter(Boolean).length;
     const uniqueCheckoutSessions = distinctCheckoutSessions.filter(Boolean).length;
 
-    // Session-based Conversion Rates (if sessions are tracked, else event-based fallback)
-    const sessionConversionRate = uniqueVisitorSessions > 0
-      ? ((finalOrdersCount / uniqueVisitorSessions) * 100).toFixed(1)
-      : (views > 0 ? ((finalOrdersCount / views) * 100).toFixed(1) : "0.0");
+    // ── Safe, Mathematically Sound Conversion Rates ──────────────────
+    // In e-commerce funnels, rates represent the ratio of users advancing through each step.
+    // They are capped at 100.0% so pre-existing database orders don't produce nonsensical >100% figures (e.g. 900%).
+    const calcRate = (numerator, denominator) => {
+      if (!denominator || denominator <= 0 || !numerator || numerator <= 0) return "0.0";
+      const pct = Math.min(100, (numerator / denominator) * 100);
+      return pct.toFixed(1);
+    };
 
-    const sessionCartToOrderRate = uniqueCartSessions > 0
-      ? ((finalOrdersCount / uniqueCartSessions) * 100).toFixed(1)
-      : (cartAdds > 0 ? ((finalOrdersCount / cartAdds) * 100).toFixed(1) : "0.0");
+    const overallConvRate = calcRate(finalOrdersCount, views);
+    const cartToOrderRate = calcRate(finalOrdersCount, cartAdds);
+    const checkoutCompletionRate = calcRate(finalOrdersCount, checkoutStarts);
 
-    const sessionCheckoutCompletionRate = uniqueCheckoutSessions > 0
-      ? ((finalOrdersCount / uniqueCheckoutSessions) * 100).toFixed(1)
-      : (checkoutStarts > 0 ? ((finalOrdersCount / checkoutStarts) * 100).toFixed(1) : "0.0");
-
-    // Standard event-based rates
-    const overallConvRate = views > 0 ? ((finalOrdersCount / views) * 100).toFixed(1) : "0.0";
-    const cartToOrderRate = cartAdds > 0 ? ((finalOrdersCount / cartAdds) * 100).toFixed(1) : "0.0";
-    const checkoutCompletionRate = checkoutStarts > 0 ? ((finalOrdersCount / checkoutStarts) * 100).toFixed(1) : "0.0";
+    const sessionConversionRate = calcRate(finalOrdersCount, uniqueVisitorSessions || views);
+    const sessionCartToOrderRate = calcRate(finalOrdersCount, uniqueCartSessions || cartAdds);
+    const sessionCheckoutCompletionRate = calcRate(finalOrdersCount, uniqueCheckoutSessions || checkoutStarts);
 
     res.json({
       success: true,

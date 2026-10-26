@@ -4,6 +4,7 @@ import { useShop } from "../../context/ShopContext";
 import { useLang } from "../../context/LangContext";
 import { money, discountPct } from "../../utils/format";
 import { SafeImg } from "./ui";
+import { track } from "../../hooks/useAnalytics";
 
 // pastel "plates" taken from the AI-Studio hero cards
 const PLATES = ["bg-sage", "bg-peach", "bg-butter", "bg-lilac", "bg-blush"];
@@ -32,7 +33,7 @@ export default function ProductCard({ product: p, index }) {
       {/* arch-shaped photo window on a pastel plate */}
       <div className={`relative overflow-hidden rounded-[1.4rem] ${plate} px-2 pb-0 pt-4 sm:rounded-[1.7rem] sm:px-3 sm:pt-5`}>
         <span className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/40 transition-transform duration-700 group-hover:scale-150" />
-        <Link to={`/product/${p._id}`} className="img-frame relative block aspect-[4/4.4] overflow-hidden bg-cream-deep shadow-soft ring-4 ring-white/90 shape-arch">
+        <Link to={`/product/${p._id}`} onClick={() => track("product_view", { productId: p._id, productName: p.name })} className="img-frame relative block aspect-[4/4.4] overflow-hidden bg-cream-deep shadow-soft ring-4 ring-white/90 shape-arch">
           <SafeImg src={p.productimage} alt={p.name} className="h-full w-full object-cover" />
         </Link>
 
@@ -67,7 +68,7 @@ export default function ProductCard({ product: p, index }) {
 
       <div className="flex min-w-0 flex-1 flex-col px-1.5 pb-1.5 pt-3 sm:px-3 sm:pb-2 sm:pt-4">
         <p className="truncate font-script text-lg font-bold leading-none text-primary-600 sm:text-[1.35rem]">{p.brand?.name || p.category?.name}</p>
-        <Link to={`/product/${p._id}`} className="mt-1.5 line-clamp-2 min-h-[2.5rem] font-display text-[0.9rem] sm:min-h-[2.7rem] sm:text-[1.02rem] font-bold leading-snug text-secondary-700 transition hover:text-primary-600">
+        <Link to={`/product/${p._id}`} onClick={() => track("product_view", { productId: p._id, productName: p.name })} className="mt-1.5 line-clamp-2 min-h-[2.5rem] font-display text-[0.9rem] sm:min-h-[2.7rem] sm:text-[1.02rem] font-bold leading-snug text-secondary-700 transition hover:text-primary-600">
           {p.name}
         </Link>
 
