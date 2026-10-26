@@ -20,12 +20,18 @@ app.set("trust proxy", 1);
 app.use(cookieParser());
 
 // ── CORS ────────────────────────────────────────────────────────────────────
-// Production: Strict origin allowlist with regex support for preview deployments.
+// Production & Preview allowlist: includes verified Vercel frontend deployments by default
 const isProd = process.env.NODE_ENV === "production";
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
+const DEFAULT_PROD_ORIGINS = [
+  "https://jayamangala-s12t.vercel.app",
+  "https://jayamangala.vercel.app",
+];
+const ENV_ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
+
+const ALLOWED_ORIGINS = Array.from(new Set([...DEFAULT_PROD_ORIGINS, ...ENV_ALLOWED_ORIGINS]));
 
 // Authorized development origins
 const DEV_ORIGINS = [
@@ -46,11 +52,9 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // In production, allow authorized Vercel preview domains if enabled
-    if (isProd && process.env.ALLOW_VERCEL_PREVIEWS === "true") {
-      if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(origin)) {
-        return callback(null, true);
-      }
+    // Allow any jayamangala or project Vercel deployment / preview
+    if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
     }
 
     // In local development mode only, allow localhost variants
@@ -60,10 +64,11 @@ const corsOptions = {
       }
     }
 
-    callback(new Error(`CORS: origin ${origin} not allowed`));
+    // Return null, false instead of throwing Error to prevent preflight OPTIONS 500 crash
+    return callback(null, false);
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
   exposedHeaders: ["Set-Cookie"],
   maxAge: 86400, // 24 hours preflight cache
