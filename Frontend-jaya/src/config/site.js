@@ -17,6 +17,7 @@ export const BRANCHES = [
 // then just change the extension here, e.g. "/images/oil.jpg").
 export const ART = {
   hero: "/images/hero.jpeg",
+  story: "/images/our-story.jpg",
   oil: "/images/oil.png",
   oilWide: "/images/oil-wide.png",
   groundnut: "/images/groundnut.png",

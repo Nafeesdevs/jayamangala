@@ -4,13 +4,51 @@
 // Add real customer testimonials here when ready. Leave empty to hide the section.
 // Format: { name, role (en/ta), quote (en/ta), initials }
 export const TESTIMONIALS = [
-  // Example (uncomment and fill with real data):
-  // {
-  //   name: "Customer Name",
-  //   initials: "CN",
-  //   role: { en: "Retailer, Kumbakonam", ta: "சில்லறை விற்பனையாளர், கும்பகோணம்" },
-  //   quote: { en: "Excellent quality oils at great prices.", ta: "சிறந்த விலையில் தரமான எண்ணெய்கள்." },
-  // },
+  {
+    name: "Amal Sumaya",
+    initials: "AS",
+    role: { en: "Verified Customer", ta: "சரிபார்க்கப்பட்ட வாடிக்கையாளர்" },
+    quote: {
+      en: "Jayamangala Agro Foods offers quality products at affordable prices! Their pure Ayngaran coconut oil, gingelly oil are great choices for everyday use. Good quality at a reasonable cost makes these products worth buying. A perfect combination of quality, tradition, and value for money! Highly recommended",
+      ta: "ஜெயமங்கலா அக்ரோ ஃபுட்ஸ் சிறந்த தரமான தயாரிப்புகளை கட்டுப்படியான விலையில் வழங்குகிறது! அவர்களின் தூய ஐங்கரன் தேங்காய் எண்ணெய் மற்றும் நல்லெண்ணெய் அன்றாட பயன்பாட்டிற்கு சிறந்த தேர்வு. தரம், பாரம்பரியம் மற்றும் நியாயமான விலை ஆகியவற்றின் சிறந்த சேர்க்கை! மிகவும் பரிந்துரைக்கப்படுகிறது"
+    }
+  },
+  {
+    name: "Thasleem Hafsa",
+    initials: "TH",
+    role: { en: "Verified Customer", ta: "சரிபார்க்கப்பட்ட வாடிக்கையாளர்" },
+    quote: {
+      en: "Jayamagala Agro Foods offers excellent quality JAYAM gingelly oil, AISHWARYAM deepam oil, JAYAM coconut oil. The gingelly oil has a natural aroma and a good quality, while the deepam oil is suitable for daily pooja and lighting lamps. I appreciate the quality and care in their products. Keep up the good work and continue providing trusted products to customers.",
+      ta: "ஜெயமங்கலா அக்ரோ ஃபுட்ஸ் சிறந்த தரமான ஜெயம் நல்லெண்ணெய், ஐஸ்வர்யம் தீபம் எண்ணெய், ஜெயம் தேங்காய் எண்ணெய் ஆகியவற்றை வழங்குகிறது. நல்லெண்ணெய் இயற்கை நறுமணத்துடனும், தீபம் எண்ணெய் அன்றாட பூஜைக்கும் மிகவும் ஏற்றதாக உள்ளது. வாடிக்கையாளர்களுக்கு நம்பகமான தயாரிப்புகளை தொடர்ந்து வழங்குங்கள்."
+    }
+  },
+  {
+    name: "Ismail Mumtaj",
+    initials: "IM",
+    role: { en: "Verified Customer", ta: "சரிபார்க்கப்பட்ட வாடிக்கையாளர்" },
+    quote: {
+      en: "I am very satisfied with Jayamangala Agro Foods products. The quality is good, the products are fresh, and the taste is excellent. I appreciate the care taken in maintaining quality and providing value for money. Keep up the good work and continue delivering quality products. Wishing Jayamangala Agro Foods continued success!",
+      ta: "ஜெயமங்கலா அக்ரோ ஃபுட்ஸ் தயாரிப்புகளில் நான் மிகவும் திருப்தி அடைகிறேன். தரம் மிகவும் நன்றாக உள்ளது, தயாரிப்புகள் புதியதாகவும் சுவை அருமையாகவும் இருக்கிறது. தரத்தைப் பேணி வாடிக்கையாளர்களுக்கு மதிப்பு வழங்குவதற்கு எனது பாராட்டுகள். தொடர்ந்து வெற்றி பெற வாழ்த்துகள்!"
+    }
+  },
+  {
+    name: "Pugazhenthi",
+    initials: "P",
+    role: { en: "Verified Customer", ta: "சரிபார்க்கப்பட்ட வாடிக்கையாளர்" },
+    quote: {
+      en: "This company all products are good quality & quantity product",
+      ta: "இந்த நிறுவனத்தின் அனைத்து தயாரிப்புகளும் சிறந்த தரம் மற்றும் சரியான அளவில் உள்ளன."
+    }
+  },
+  {
+    name: "M Abishek",
+    initials: "MA",
+    role: { en: "Verified Customer", ta: "சரிபார்க்கப்பட்ட வாடிக்கையாளர்" },
+    quote: {
+      en: "All the products at this company are of good quality.",
+      ta: "இந்த நிறுவனத்தின் அனைத்து பொருட்களும் சிறந்த தரமானவை."
+    }
+  }
 ];
 
 // ── Trust Indicators ──────────────────────────────────────────────────────────

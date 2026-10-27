@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, BadgeCheck, ShieldCheck, Truck, Wallet, Phone, Mail, MapPin, Send, Check, Tag, Sparkles, Leaf, Droplets, HeartHandshake, Award, Star, Quote, Package, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, ArrowUpRight, BadgeCheck, ShieldCheck, Truck, Wallet, Phone, Mail, MapPin, Send, Check, Tag, Sparkles, Leaf, Droplets, HeartHandshake, Award, Star, Quote, Package, Users } from "lucide-react";
 import { BrandAPI, CategoryAPI, ProductAPI, LeadAPI } from "../api/services";
 import { errMsg } from "../api/client";
 import { track } from "../hooks/useAnalytics";
@@ -237,36 +237,111 @@ function TrustStrip() {
 
 /* ───────────────────────── TESTIMONIALS (hidden when empty) ───────────────────────── */
 function Testimonials() {
-  const { t, tx } = useLang();
+  const { t, tx, lang } = useLang();
+  const [startIndex, setStartIndex] = useState(0);
+
   if (!TESTIMONIALS || TESTIMONIALS.length === 0) return null;
-  const plates = ["bg-sage", "bg-peach", "bg-butter", "bg-lilac", "bg-blush"];
+
+  const total = TESTIMONIALS.length;
+
+  const prev = () => {
+    setStartIndex((curr) => (curr - 1 + total) % total);
+  };
+
+  const next = () => {
+    setStartIndex((curr) => (curr + 1) % total);
+  };
+
+  // Get exactly 3 visible reviews starting from startIndex (wraps around cleanly)
+  const visibleReviews = [
+    TESTIMONIALS[startIndex % total],
+    TESTIMONIALS[(startIndex + 1) % total],
+    TESTIMONIALS[(startIndex + 2) % total],
+  ];
+
   return (
     <section className="container-x pt-24 sm:pt-32">
-      <Reveal className="text-center">
-        <p className="eyebrow">{t("testi.kicker")}</p>
-        <h2 className="h-section mt-2">{t("testi.title")}</h2>
-      </Reveal>
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-        {TESTIMONIALS.map((item, i) => (
-          <Reveal key={i} delay={i * 100} variant="zoom">
-            <div className={`relative h-full overflow-hidden border border-cream-sand/60 bg-white p-5 shadow-card sm:p-6 ${i % 2 ? "rounded-[.6rem_2.4rem_.6rem_2.4rem]" : "rounded-[2.4rem_.6rem_2.4rem_.6rem]"}`}>
-              <Quote className="absolute right-5 top-4 h-8 w-8 text-primary-100" />
-              <p className="relative text-sm leading-relaxed text-ink-soft">{tx(item.quote)}</p>
-              <div className="mt-5 flex items-center gap-3">
-                <span className={`${plates[i % 5]} flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-secondary-700`}>
-                  {item.initials}
-                </span>
-                <div>
-                  <p className="font-display text-sm font-bold text-secondary-700">{item.name}</p>
-                  <p className="text-xs text-ink-soft">{tx(item.role)}</p>
+      {/* Header: Clean title with kicker */}
+      <div className="flex flex-col items-center text-center">
+        <Reveal>
+          <p className="eyebrow">{t("testi.kicker")}</p>
+          <h2 className="h-section mt-2">
+            {t("testi.title")}
+          </h2>
+        </Reveal>
+      </div>
+
+      {/* 3 Big Equal Boxes with Generous Gap to Side Arrows */}
+      <div className="relative mt-12 px-6 sm:px-12 lg:px-14">
+        {/* Left Arrow Button - Spaced comfortably away from cards */}
+        <button
+          type="button"
+          onClick={prev}
+          aria-label="Previous review"
+          className="absolute left-0 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-cream-sand bg-white text-secondary-800 shadow-lift transition-all duration-300 hover:scale-110 hover:border-primary-500 hover:bg-primary-600 hover:text-white"
+        >
+          <ChevronLeft className="h-6 w-6 stroke-[2.2]" />
+        </button>
+
+        {/* Right Arrow Button - Spaced comfortably away from cards */}
+        <button
+          type="button"
+          onClick={next}
+          aria-label="Next review"
+          className="absolute right-0 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-cream-sand bg-white text-secondary-800 shadow-lift transition-all duration-300 hover:scale-110 hover:border-primary-500 hover:bg-primary-600 hover:text-white"
+        >
+          <ChevronRight className="h-6 w-6 stroke-[2.2]" />
+        </button>
+
+        {/* 3 Large Equal Boxes Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {visibleReviews.map((item, idx) => (
+            <div
+              key={`${startIndex}-${idx}`}
+              className="group flex h-[350px] w-full flex-col justify-between rounded-2xl border border-cream-sand bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-secondary-300 hover:shadow-lift"
+            >
+              {/* Header: Stars & Verified Badge */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-1" aria-label="5 stars rating">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                    <Check className="h-3 w-3 stroke-[2.5]" />
+                    {lang === "ta" ? "சரிபார்க்கப்பட்டது" : "Verified Order"}
+                  </span>
                 </div>
-                <div className="ml-auto flex gap-0.5">
-                  {[1,2,3,4,5].map(s => <Star key={s} className="h-3.5 w-3.5 fill-gold-400 text-gold-400" />)}
+
+                {/* Big Review Text Area */}
+                <p className="mt-5 text-[15px] leading-relaxed text-secondary-800 line-clamp-6">
+                  “{tx(item.quote)}”
+                </p>
+              </div>
+
+              {/* Footer: Symmetrically equalized Name, Badge & Details */}
+              <div className="flex h-12 items-center gap-3.5 border-t border-cream-sand/60 pt-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-100 font-display text-xs font-bold text-secondary-800">
+                  {item.initials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="truncate text-sm font-semibold text-secondary-900 leading-snug">
+                      {item.name}
+                    </h3>
+                    <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-600" />
+                  </div>
+                  <p className="truncate text-xs text-ink-faint leading-tight mt-0.5">
+                    Kumbakonam
+                  </p>
                 </div>
               </div>
+
             </div>
-          </Reveal>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -427,7 +502,7 @@ function Story() {
         <Reveal variant="from-left" className="relative mx-auto w-full max-w-md lg:max-w-none">
           <span className="absolute -left-3 -top-3 h-full w-full rounded-[40%_60%_55%_45%/50%_45%_55%_50%] bg-primary-100 animate-morph sm:-left-6 sm:-top-6" />
           <div className="img-frame relative aspect-[4/4.6] overflow-hidden shadow-lift ring-8 ring-white shape-arch">
-            <img src={ART.groundnut} alt="Groundnut" className="h-full w-full object-cover" />
+            <img src={ART.story} alt="Jayamangala Agro Foods Heritage" className="h-full w-full object-cover" />
           </div>
           {/* rotating stamp */}
           <div className="absolute -bottom-6 right-0 flex h-28 w-28 items-center justify-center sm:-right-6 sm:h-36 sm:w-36">
